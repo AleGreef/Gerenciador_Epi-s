@@ -7,8 +7,22 @@
 {% block content %}
     <div class="menu-container">
         <h1>Menu Principal</h1>
-        <a href="{% url 'cadastrar_colaborador' %}" class="menu-button">Cadastrar Colaborador</a><br>
-        <a href="{% url 'cadastrar_equipamento' %}" class="menu-button">Cadastrar Equipamento</a><br>
-        <a href="{% url 'visualizar_emprestimos' %}" class="menu-button">Visualizar Emprestimos</a>
+        <div class="menu-buttons">
+            <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
+                👷‍♂️ Cadastrar Colaborador
+            </a>
+            <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
+                🧰 Cadastrar Equipamento
+            </a>
+            <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
+                📋 Visualizar Empréstimos
+            </a>
+        </div>
+
+        <div class="extra-buttons">
+            <a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>
+            <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
+        </div>
     </div>
+
 {% endblock content %}

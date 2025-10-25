@@ -185,3 +185,53 @@ footer a {
 footer a:hover {
     color: #fff;
 }
+/* ========== MENU REFINADO ========== */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 500;
+    padding: 14px 0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.menu-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Botões extras (voltar/topo) */
+.extra-buttons {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.secondary-btn {
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    font-size: 15px;
+    padding: 10px 0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+    background-color: #555;
+    transform: translateY(-2px);
+}

@@ -1,0 +1,35 @@
+{% extends "app_site/partials/base.html" %}
+
+{% load static %}
+
+{% block content %}
+<main class="content-center">
+        <form class="form-equipamentos">
+            <select required>
+                <option value="">Tipo de Acessório</option>
+                <option>Capacete</option>
+                <option>Óculos</option>
+                <option>Luvas</option>
+            </select>
+
+            <select required>
+                <option value="">Nome do Equipamento</option>
+                <option>Capacete de Segurança</option>
+                <option>Óculos de Proteção</option>
+                <option>Luvas Anticorte</option>
+            </select>
+
+            <select required>
+                <option value="">Fabricante</option>
+                <option>3M</option>
+                <option>Vonder</option>
+                <option>Bracol</option>
+            </select>
+
+            <div class="button-group">
+                <button type="submit" class="btn-dark">Cadastrar</button>
+                <button type="button" class="btn-dark">Estoque</button>
+            </div>
+        </form>
+    </main>
+{% endblock content %}

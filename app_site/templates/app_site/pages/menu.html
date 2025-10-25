@@ -1,0 +1,14 @@
+{% extends "app_site/partials/base.html" %}
+
+{% load static %}
+
+{% block title %}Menu Princpal{% endblock title %}
+
+{% block content %}
+    <div class="menu-container">
+        <h1>Menu Principal</h1>
+        <a href="{% url 'cadastrar_colaborador' %}" class="menu-button">Cadastrar Colaborador</a><br>
+        <a href="{% url 'cadastrar_equipamento' %}" class="menu-button">Cadastrar Equipamento</a><br>
+        <a href="{% url 'visualizar_emprestimos' %}" class="menu-button">Visualizar Emprestimos</a>
+    </div>
+{% endblock content %}

@@ -15,16 +15,13 @@ class Setor(models.Model):
 
 class Colaboradores(models.Model):
     id_col = models.AutoField(primary_key=True)
-    nome_colaborador = models.CharField(max_length=45, blank=True, null=True)
-    data_nasc = models.DateField(blank=True, null=True)
-    telefone = models.CharField(max_length=15, blank=True, null=True)
+    nome_Colaborador = models.CharField(max_length=45, blank=True, null=True)
+    Data_nasc = models.CharField(max_length=12, blank=True, null=True)
+    telefone = models.CharField(max_length=30, blank=True, null=True)
     email = models.EmailField(max_length=45, blank=True, null=True)
     senha = models.CharField(max_length=45, blank=True, null=True)
-    #id_setor = models.IntegerField(blank=True, null=True)
     cpf = models.CharField(unique=True, max_length=11, blank=True, null=True)
-    tipo_colaborador = models.CharField(max_length=10, blank=True, null=True)
-    delete = models.CharField(max_length=1, blank=True, null=True)
-
+  
     class Meta:
         db_table = 'colaboradores'
 

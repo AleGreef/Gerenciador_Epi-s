@@ -14,10 +14,10 @@ def menu(request):
     return render(request, 'app_site/pages/menu.html')  # 'menu.html' é o template da tela do menu
 
 def cadastrar_colaborador(request):
-    setores = Setor.objects.all()  # Passamos todos os setores para popular o select
+
     if request.method == 'POST':
-        nome_colaborador = request.POST.get('nome_colaborador')
-        data_nasc = request.POST.get('data_nasc')
+        nome_Colaborador = request.POST.get('nome_Colaborador')
+        Data_nasc = request.POST.get('Data_nasc')
         telefone = request.POST.get('telefone')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
@@ -32,19 +32,18 @@ def cadastrar_colaborador(request):
 
         # Salva no banco
         Colaboradores.objects.create(
-            nome_colaborador=nome_colaborador,
-            data_nasc=data_nasc,
+            nome_Colaborador=nome_Colaborador,
+            Data_nasc=Data_nasc,
             telefone=telefone,
             email=email,
             senha=senha,
-            #id_setor=setor_obj,
             cpf=cpf,
             
         )
         messages.success(request, "Colaborador cadastrado com sucesso!")
         return redirect('lista_colaborador')  # Redireciona para a listagem
 
-    return render(request, 'app_site/pages/cadastrar_colaborador.html', {'setores': setores})
+    return render(request, 'app_site/pages/cadastrar_colaborador.html')
 
 def lista_colaborador(request):
     colaboradores = Colaboradores.objects.all()

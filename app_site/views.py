@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
-from .models import Colaboradores
+from app_site.models import Colaboradores, Setor
+from django.contrib import messages
+
 
 
 def cadastrar_equipamento(request):
@@ -12,28 +14,38 @@ def menu(request):
     return render(request, 'app_site/pages/menu.html')  # 'menu.html' é o template da tela do menu
 
 def cadastrar_colaborador(request):
+    setores = Setor.objects.all()  # Passamos todos os setores para popular o select
     if request.method == 'POST':
-        nome = request.POST.get('nome')
-        sobrenome = request.POST.get('sobrenome')
-        email = request.POST.get('email')
-        cargo = request.POST.get('cargo')
+        nome_colaborador = request.POST.get('nome_colaborador')
+        data_nasc = request.POST.get('data_nasc')
         telefone = request.POST.get('telefone')
-        data_admissao = request.POST.get('data_admissao')
+        email = request.POST.get('email')
+        senha = request.POST.get('senha')
+        #id_setor = request.POST.get('setor')
+        cpf = request.POST.get('cpf')
+        
+        #if not id_setor:
+            #messages.error(request, "Selecione um setor válido")
+            #return render(request, "app_site/pages/cadastrar_colaborador.html", {"setores": setores})
+
+        #setor_obj = Setor.objects.get(id_setor=id_setor)
 
         # Salva no banco
         Colaboradores.objects.create(
-            nome=nome,
-            sobrenome=sobrenome,
-            email=email,
-            cargo=cargo,
+            nome_colaborador=nome_colaborador,
+            data_nasc=data_nasc,
             telefone=telefone,
-            data_admissao=data_admissao
+            email=email,
+            senha=senha,
+            #id_setor=setor_obj,
+            cpf=cpf,
+            
         )
-
+        messages.success(request, "Colaborador cadastrado com sucesso!")
         return redirect('lista_colaborador')  # Redireciona para a listagem
 
-    return render(request, 'cadastrar_colaborador.html')
+    return render(request, 'app_site/pages/cadastrar_colaborador.html', {'setores': setores})
 
 def lista_colaborador(request):
     colaboradores = Colaboradores.objects.all()
-    return render(request, 'lista_colaborador.html', {'colaboradores': colaboradores})
+    return render(request, 'app_site/pages/menu.html', {'colaboradores': colaboradores})

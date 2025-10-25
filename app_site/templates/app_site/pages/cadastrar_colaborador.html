@@ -1,7 +1,13 @@
 {% extends "app_site/partials/base.html" %}
 
 {% load static %}
-
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
 {% block content %}
     <div class="form-container">
         <h2>Cadastro de Funcionário</h2>
@@ -20,23 +26,19 @@
             <label for="telefone">Telefone</label>
             <input type="text" id="telefone" name="telefone" required>
             <br>
-            <label for="contato_emergencia">Contato de Emergência</label>
-            <input type="text" id="contato_emergencia" name="contato_emergencia" required>
-            <br>
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required>
             <br>
             <label for="senha">Senha</label>
             <input type="password" id="senha" name="senha" required>
             <br>
-            <label for="setor">Setor</label>
-            <select id="setor" name="setor" required>
-                <option value="">Selecione</option>
-                <option value="administrativo">Administrativo</option>
-                <option value="operacional">Operacional</option>
-                <option value="logistica">Logística</option>
-                <!-- Adicione outros setores se necessário -->
-            </select>
+            <!--<label for="setor">Setor</label>
+            <select name="setor" id="setor" required>
+                <option value="">Selecione um setor</option>
+                {% for setor in setores %}
+                    <option value="{{ setor.id_setor }}">{{ setor.nome_setor }}</option>
+                {% endfor %}
+            </select>-->
 
             <label for="epi">EPI</label>
             <select id="epi" name="epi" required>

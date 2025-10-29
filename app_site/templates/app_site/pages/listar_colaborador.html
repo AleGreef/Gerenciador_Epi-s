@@ -1,0 +1,16 @@
+{% extends "app_site/partials/base.html" %}
+
+{% load static %}
+
+{% block title %}Lista de Colaboradores{% endblock title %}
+
+{% block content %}
+    <h1>Lista de Colaboradores</h1>
+    <ul>
+        {% for c in colaboradores %}
+            <li>{{ c.nome_Colaborador }} - {{ c.Data_nasc }} - {{ c.telefone }} - {{ c.email }} - {{ c.cpf }}</li>
+        {% empty %}
+            <li>Nenhum colaborador cadastrado</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

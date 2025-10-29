@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from app_site.models import Colaboradores, Setor
+from app_site.models import Colaboradores
 from django.contrib import messages
 
 
@@ -9,6 +9,9 @@ def cadastrar_equipamento(request):
 
 def visualizar_emprestimos(request):
     return render(request, 'app_site/pages/visualizar_emprestimos.html')
+
+def login(request):
+    return render(request, 'app_site/pages/login.html')
 
 def menu(request):
     return render(request, 'app_site/pages/menu.html')  # 'menu.html' é o template da tela do menu
@@ -41,10 +44,10 @@ def cadastrar_colaborador(request):
             
         )
         messages.success(request, "Colaborador cadastrado com sucesso!")
-        return redirect('lista_colaborador')  # Redireciona para a listagem
+        return redirect('listar_colaborador')  # Redireciona para a listagem
 
     return render(request, 'app_site/pages/cadastrar_colaborador.html')
 
-def lista_colaborador(request):
+def listar_colaborador(request):
     colaboradores = Colaboradores.objects.all()
-    return render(request, 'app_site/pages/menu.html', {'colaboradores': colaboradores})
+    return render(request, 'app_site/pages/listar_colaborador.html', {'colaboradores': colaboradores})

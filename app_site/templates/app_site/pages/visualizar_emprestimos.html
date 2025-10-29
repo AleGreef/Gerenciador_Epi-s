@@ -7,8 +7,14 @@
         <form class="form-emprestimos">
             <select required>
                 <option value="">CPF</option>
-                <option>123.456.789-00</option>
-                <option>987.654.321-00</option>
+                <option>
+                    {% for c in colaboradores %}
+                        <li>{{ c.cpf }}</li>
+                        
+                    {% empty %}
+                        <li>Nenhum colaborador cadastrado</li>
+                    {% endfor %}
+                </option>    
             </select>
 
             <div class="table-wrapper">

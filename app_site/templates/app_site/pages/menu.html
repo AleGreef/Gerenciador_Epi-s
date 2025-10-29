@@ -17,19 +17,13 @@
             <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
                 📋 Visualizar Empréstimos
             </a>
+            <a href="{% url 'listar_colaborador' %}" class="menu-btn">
+                📋 Lista de Colaboradores
+            </a>
         </div>
 
-         <h1>Lista de Colaboradores</h1>
-        <ul>
-            {% for c in colaboradores %}
-                <li>{{ c.nome }} {{ c.sobrenome }} - {{ c.cargo }} - {{ c.email }} - Admissão: {{ c.data_admissao }}</li>
-            {% empty %}
-                <li>Nenhum colaborador cadastrado</li>
-            {% endfor %}
-        </ul>
-
         <div class="extra-buttons">
-            <a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>
+            <!--<a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>-->
             <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
         </div>
     </div>

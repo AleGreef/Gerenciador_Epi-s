@@ -1,16 +1,45 @@
 {% extends "app_site/partials/base.html" %}
-
 {% load static %}
 
 {% block title %}Lista de Colaboradores{% endblock title %}
 
 {% block content %}
-    <h1>Lista de Colaboradores</h1>
-    <ul>
-        {% for c in colaboradores %}
-            <li>{{ c.nome_Colaborador }} - {{ c.Data_nasc }} - {{ c.telefone }} - {{ c.email }} - {{ c.cpf }}</li>
-        {% empty %}
-            <li>Nenhum colaborador cadastrado</li>
-        {% endfor %}
-    </ul>
+<div class="container-fluid" >  <!-- ajusta por causa da sidebar -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Lista de Colaboradores</h4>
+        </div>
+
+        <div class="card-body">
+            {% if colaboradores %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Data de Nascimento</th>
+                                <th>Telefone</th>
+                                <th>Email</th>
+                                <th>CPF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in colaboradores %}
+                                <tr>
+                                    <td>{{ c.nome_Colaborador }}</td>
+                                    <td>{{ c.format_Data_nasc }}</td>
+                                    <td>{{ c.format_telefone }}</td>
+                                    <td>{{ c.email }}</td>
+                                    <td>{{ c.format_cpf }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">Nenhum colaborador cadastrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock content %}

@@ -13,6 +13,9 @@ def visualizar_emprestimos(request):
 def login(request):
     return render(request, 'app_site/pages/login.html')
 
+def listar_equipamentos(request):
+    return render(request, 'app_site/pages/listar_equipamentos.html')
+
 def menu(request):
     return render(request, 'app_site/pages/menu.html')  # 'menu.html' é o template da tela do menu
 

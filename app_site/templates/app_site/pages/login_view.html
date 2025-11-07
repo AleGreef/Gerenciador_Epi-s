@@ -72,21 +72,25 @@
 
     <div class="login-card">
         <h2>Gerenciamento de EPI's</h2>
-        <form method="POST" action="#">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        <form method="POST" action="{% url 'login_view' %}">
+            {% csrf_token %}
             <div class="mb-3 text-start">
                 <label for="email" class="form-label">E-mail</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" required>
             </div>
 
             <div class="mb-3 text-start">
-                <label for="password" class="form-label">Senha</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha" required>
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
             </div>
 
             <button type="submit" class="btn btn-login mt-2">Entrar</button>
 
-            <a href="#" class="link">Cadastre-se aqui.</a>
-            <a href="#" class="link">Esqueceu a senha?</a>
+            <a href="{% url 'cadastrar_usuario' %}" class="link">Cadastre-se aqui.</a>
+            <a href="{% url 'esqueceu_senha' %}" class="link">Esqueceu a senha?</a>
         </form>
     </div>
 

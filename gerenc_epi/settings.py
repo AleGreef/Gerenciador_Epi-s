@@ -66,7 +66,8 @@ WSGI_APPLICATION = 'gerenc_epi.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
+    "default": 
+    {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "mydb",
         "USER": "root",
@@ -75,8 +76,6 @@ DATABASES = {
         "PORT": "3306",
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -118,7 +117,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join('static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIAR_URL = "/media/"
+MEDIAR_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

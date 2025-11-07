@@ -83,3 +83,11 @@ const form = document.getElementById('form-colaborador');
     cpf.value = cpf.value.replace(/\D/g, '');
     telefone.value = telefone.value.replace(/\D/g, '');
   });
+
+setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 4000); // desaparece após 4 segundos

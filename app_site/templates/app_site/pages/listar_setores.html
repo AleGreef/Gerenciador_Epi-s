@@ -1,0 +1,37 @@
+{% extends "app_site/partials/base.html" %}
+{% load static %}
+
+{% block title %}Lista de Setores{% endblock title %}
+
+{% block content %}
+<div class="container-fluid" >  <!-- ajusta por causa da sidebar -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Lista de Setores</h4>
+        </div>
+
+        <div class="card-body">
+            {% if setores %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>nome do Setor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in setores %}
+                                <tr>
+                                    <td>{{ c.nome_setor }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">Nenhum setor cadastrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

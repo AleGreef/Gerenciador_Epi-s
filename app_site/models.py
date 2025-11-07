@@ -1,19 +1,6 @@
 from django.db import models
 from datetime import datetime
 
-class Setor(models.Model):
-    id_setor = models.AutoField(primary_key=True)
-    nome_setor = models.CharField(max_length=45, blank=True, null=True)
-    epis_necessario = models.CharField(max_length=45, blank=True, null=True)
-    delete = models.CharField(max_length=1, blank=True, null=True)
-
-    class Meta:
-        db_table = 'setor'
-
-    def __str__(self):
-        return self.nome_setor
-
-
 class Colaboradores(models.Model):
     id_col = models.AutoField(primary_key=True)
     nome_Colaborador = models.CharField(max_length=45, blank=True, null=True)
@@ -22,7 +9,8 @@ class Colaboradores(models.Model):
     email = models.EmailField(max_length=45, blank=True, null=True)
     senha = models.CharField(max_length=45, blank=True, null=True)
     cpf = models.CharField(unique=True, max_length=11, blank=True, null=True)
-  
+    foto_perfil = models.ImageField(upload_to='media/', blank=True, null=True)
+
     class Meta:
         db_table = 'colaboradores'
 
@@ -30,11 +18,10 @@ class Colaboradores(models.Model):
         return self.nome_colaborador
     
     def save(self, *args, **kwargs):
-        # Garante que vai salvar apenas os números
-        self.cpf = ''.join(filter(str.isdigit, self.cpf))
-        if self.telefone:
-            self.telefone = ''.join(filter(str.isdigit, self.telefone))
+        if self.cpf:  # só tenta limpar se houver valor
+            self.cpf = ''.join(filter(str.isdigit, self.cpf))
         super().save(*args, **kwargs)
+
 
     def format_cpf(self):
         """Retorna o CPF formatado: 000.000.000-00"""
@@ -75,46 +62,26 @@ class Colaboradores(models.Model):
         # Se estiver em outro formato, retorna o valor cru (sem quebrar)
         return data_str
 
-class Epis(models.Model):
-    id_epis = models.AutoField(primary_key=True)
-    nome_epi = models.CharField(max_length=45, blank=True, null=True)
-    tipo_acessorio = models.CharField(max_length=45, blank=True, null=True)
+
+class Setores(models.Model):
+    id_setores = models.AutoField(primary_key=True)
+    nome_setor = models.CharField(max_length=45, blank=True, null=True)
+    
+    class Meta:
+        db_table = 'setores'
+
+    def __str__(self):
+        return self.nome_setor
+    
+class Equipamentos(models.Model):
+    id_Equipamentos = models.AutoField(primary_key=True)
+    nome_equipamento = models.CharField(max_length=45, blank=True, null=True)
     fabricante = models.CharField(max_length=45, blank=True, null=True)
-    tamanho = models.CharField(max_length=45, blank=True, null=True)
-    delete = models.CharField(max_length=1, blank=True, null=True)
+    data_validade = models.CharField(max_length=45, blank=True, null=True)
+    estoque = models.CharField(max_length=45, blank=True, null=True)
 
     class Meta:
-        db_table = 'epis'
+        db_table = 'equipamentos'
 
     def __str__(self):
-        return self.nome_epi
-
-
-class Estoque(models.Model):
-    epis = models.OneToOneField(Epis, on_delete=models.CASCADE, primary_key=True)
-    quantidade_disponivel = models.IntegerField(blank=True, null=True)
-    delete = models.CharField(max_length=1, blank=True, null=True)
-
-    class Meta:
-        db_table = 'estoque'
-
-    def __str__(self):
-        return f"{self.epis.nome_epi} - {self.quantidade_disponivel}"
-
-
-class Emprestimos(models.Model):
-    colaborador = models.ForeignKey(Colaboradores, on_delete=models.CASCADE)
-    epis = models.ForeignKey(Epis, on_delete=models.CASCADE)
-    data_emprestimo = models.DateTimeField(blank=True, null=True)
-    data_devolucao = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=2, blank=True, null=True)
-    delete = models.CharField(max_length=1, blank=True, null=True)
-
-    class Meta:
-        db_table = 'emprestimos'
-        constraints = [
-            models.UniqueConstraint(fields=['colaborador', 'epis'], name='unique_colaborador_epis')
-        ]
-
-    def __str__(self):
-        return f"{self.colaborador.nome_colaborador} - {self.epis.nome_epi}"
+        return self.nome_equipamento

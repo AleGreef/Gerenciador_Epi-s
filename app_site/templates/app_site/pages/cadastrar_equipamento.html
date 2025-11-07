@@ -8,50 +8,40 @@
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Cadastro de Equipamentos</h4>
-            <a href="{% url 'listar_equipamentos' %}" class="btn btn-light btn-sm">Ver Estoque</a>
+            <a href="{% url 'listar_equipamentos' %}" class="btn btn-light btn-sm">Ver Lista</a>
         </div>
 
         <div class="card-body">
             <form method="POST" action="{% url 'cadastrar_equipamento' %}">
                 {% csrf_token %}
                 
-                <!-- Tipo de Acessório -->
-                <div class="mb-3">
-                    <label for="tipo_acessorio" class="form-label">Tipo de Acessório</label>
-                    <select id="tipo_acessorio" name="tipo_acessorio" class="form-select" required>
-                        <option value="">Escolha o acessório</option>
-                        <option>Capacete</option>
-                        <option>Óculos</option>
-                        <option>Luvas</option>
-                    </select>
-                </div>
-
                 <!-- Nome do Equipamento -->
                 <div class="mb-3">
-                    <label for="nome_equipamento" class="form-label">Nome do Equipamento</label>
-                    <select id="nome_equipamento" name="nome_equipamento" class="form-select" required>
-                        <option value="">Escolha o equipamento</option>
-                        <option>Capacete de Segurança</option>
-                        <option>Óculos de Proteção</option>
-                        <option>Luvas Anticorte</option>
-                    </select>
+                    <label for="nome_equipamento" class="form-label">Nome do equipamento</label>
+                    <input type="text" id="nome_equipamento" name="nome_equipamento" class="form-control" required>
                 </div>
 
                 <!-- Fabricante -->
-                <div class="mb-4">
-                    <label for="fabricante" class="form-label">Nome do Fabricante</label>
-                    <select id="fabricante" name="fabricante" class="form-select" required>
-                        <option value="">Escolha o fabricante</option>
-                        <option>3M</option>
-                        <option>Vonder</option>
-                        <option>Bracol</option>
-                    </select>
+                <div class="mb-3">
+                    <label for="fabricante" class="form-label">Nome do fabricante</label>
+                    <input type="text" id="fabricante" name="fabricante" class="form-control" required>
+                </div>
+
+                <!-- Data de validade -->
+                <div class="mb-3">
+                    <label for="data_validade" class="form-label">Data de validade</label>
+                    <input type="date" id="data_validade" name="data_validade" class="form-control" required>
+                </div>
+
+                <!-- Estoque -->
+                <div class="mb-3">
+                    <label for="estoque" class="form-label">Quantidade no estoque</label>
+                    <input type="text" id="estoque" name="estoque" class="form-control" required>
                 </div>
 
                 <!-- Botões -->
                 <div class="text-end">
                     <button type="submit" class="btn btn-success">Cadastrar</button>
-                    <a href="{% url 'listar_equipamentos' %}" class="btn btn-secondary">Estoque</a>
                 </div>
             </form>
         </div>

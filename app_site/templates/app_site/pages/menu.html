@@ -11,26 +11,34 @@
             <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
                 👷‍♂️ Cadastrar Colaborador
             </a>
-            <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
+            <a href="{% url 'listar_colaborador' %}" class="menu-btn">
+                📋 Lista de Colaboradores
+            </a>
+            <a href="{% url 'cadastrar_setor' %}" class="menu-btn">
                 👷‍♂️ Cadastrar Setor
+            </a>
+            <a href="{% url 'listar_setores' %}" class="menu-btn">
+                📋 Lista de Setores
             </a>
             <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
                 🧰 Cadastrar Equipamento
             </a>
-            <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
-                🧰 Realizar emprestimo
+            <a href="{% url 'listar_equipamentos' %}" class="menu-btn">
+                📋 Lista de Equipamentos
+            </a>
+            <a href="{% url 'realizar_emprestimos' %}" class="menu-btn">
+                🧰 Realizar emprestimos
             </a>
             <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
                 📋 Visualizar Empréstimos
             </a>
-            <a href="{% url 'listar_colaborador' %}" class="menu-btn">
-                📋 Lista de Colaboradores
-            </a>
+            
         </div>
 
         <div class="extra-buttons">
             <!--<a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>-->
             <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
+            <a href="{% url 'logout_view' %}" class="secondary-btn">Sair</a>
         </div>
     </div>
 

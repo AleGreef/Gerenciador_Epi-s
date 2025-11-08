@@ -34,7 +34,7 @@ body {
 .avatar{
   position: fixed;
   top:15px;
-  right: 15px;
+  right: 60px;
   width: 40px;
   cursor: pointer;
   z-index: 9999;

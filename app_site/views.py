@@ -93,7 +93,27 @@ def verificar_cpf(request):
 
     return JsonResponse(data)
 
+def gerenciar_colaboradores(request): 
+    colaboradores = Colaboradores.objects.all()
+    return render(request, 'app_site/pages/gerenciar_colaboradores.html', {'Colaboradores': colaboradores})
 
-def gerenciar_colaboradores(request):
-    colaboradores = Colaboradores.objects.all()  # busca todos do banco
-    return render(request, 'gerenciar_colaboradores.html', {'colaboradores': colaboradores})
+def editar_colaboradores(request, id):
+    colaborador = get_object_or_404(Colaboradores, id=id)
+
+    if request.method == 'POST':
+        colaborador.cpf = request.POST.get('cpf')
+        colaborador.nome_colaborador = request.POST.get('nome_colaborador')
+        colaborador.data_nasc = request.POST.get('data_nasc')
+        colaborador.telefone = request.POST.get('telefone')
+        colaborador.email = request.POST.get('email')
+        colaborador.senha = request.POST.get('senha')  # ⚠️ use hashing em produção
+        colaborador.save()
+
+        messages.success(request, 'Colaborador atualizado com sucesso!')
+        return redirect('gerenciar_colaboradores')
+
+    return render(request, 'app_site/pages/editar_colaborador.html', {'colaborador': colaborador})
+
+
+def excluir_colaborador(request):
+    return render(request, 'app_site/pages/excluir_colaborador.html')

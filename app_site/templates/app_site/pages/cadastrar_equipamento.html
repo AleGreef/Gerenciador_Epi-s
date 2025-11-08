@@ -2,34 +2,45 @@
 
 {% load static %}
 
+{% block title %}Cadastrar Equipamentos{% endblock title %}
+
 {% block content %}
-<main class="content-center">
-        <form class="form-equipamentos">
-            <select required>
-                <option value="">Tipo de Acessório</option>
-                <option>Capacete</option>
-                <option>Óculos</option>
-                <option>Luvas</option>
-            </select>
+<main class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Cadastro de Equipamentos</h4>
+            <a href="">Ver Lista</a>
+        </div>
+        <div class="card-body">
+            <form class="form-equipamentos">
+                <select required class="form-select" >
+                    <option value="">Tipo de Acessório</option>
+                    <option>Capacete</option>
+                    <option>Óculos</option>
+                    <option>Luvas</option>
+                </select>
 
-            <select required>
-                <option value="">Nome do Equipamento</option>
-                <option>Capacete de Segurança</option>
-                <option>Óculos de Proteção</option>
-                <option>Luvas Anticorte</option>
-            </select>
+                <select required class="form-select" >
+                    <option value="">Nome do Equipamento</option>
+                    <option>Capacete de Segurança</option>
+                    <option>Óculos de Proteção</option>
+                    <option>Luvas Anticorte</option>
+                </select>
 
-            <select required>
-                <option value="">Fabricante</option>
-                <option>3M</option>
-                <option>Vonder</option>
-                <option>Bracol</option>
-            </select>
+                <select required class="form-select" >
+                    <option value="">Fabricante</option>
+                    <option>3M</option>
+                    <option>Vonder</option>
+                    <option>Bracol</option>
+                </select>
 
-            <div class="button-group">
-                <button type="submit" class="btn-dark">Cadastrar</button>
-                <button type="button" class="btn-dark">Estoque</button>
-            </div>
-        </form>
-    </main>
+                <div class="button-group">
+                    <button type="submit" class="btn-dark">Cadastrar</button>
+                    <button type="button" class="btn-dark">Estoque</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
 {% endblock content %}

@@ -23,6 +23,7 @@ def cadastrar_colaborador(request):
         telefone = request.POST.get('telefone')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
+        foto = request.FILES.get('foto_perfil')
 
         Colaboradores.objects.create(
             cpf=cpf,
@@ -31,7 +32,8 @@ def cadastrar_colaborador(request):
             telefone=telefone,
             email=email,
             senha=senha,
-            delete_flag='N'
+            delete_flag='N',
+            foto_perfil=foto
         )
 
         messages.success(request, "Colaborador cadastrado com sucesso!")
@@ -42,3 +44,9 @@ def cadastrar_colaborador(request):
 def lista_colaborador(request):
     colaboradores = Colaboradores.objects.all()
     return render(request, 'app_site/pages/menu.html', {'colaboradores': colaboradores})
+
+def login(request):
+    return render(request, 'app_site/pages/login.html')
+
+def perfil(request):
+    return render(request, 'app_site/pages/perfil.html')

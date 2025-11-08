@@ -1,35 +1,63 @@
 {% extends "app_site/partials/base.html" %}
-
 {% load static %}
+<!-- Nome do Equipamento -->
+<div>
+    <label class="block text-gray-700 font-medium mb-1">Nome do Equipamento</label>
+    <input type="text" id="nome_equipamento" name="nome_equipamento" required placeholder="Digite o nome do EPI"
+           class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+</div>
 
-{% block content %}
-<main class="content-center">
-        <form class="form-equipamentos">
-            <select required>
-                <option value="">Tipo de Acessório</option>
-                <option>Capacete</option>
-                <option>Óculos</option>
-                <option>Luvas</option>
-            </select>
+<!-- Tipo de Acessório -->
+<div>
+    <label class="block text-gray-700 font-medium mb-1">Tipo de Acessório</label>
+    <select id="tipo_acessorio" name="tipo_acessorio" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+        <option value="">Selecione...</option>
+        <option>Capacete</option>
+        <option>Óculos</option>
+        <option>Luvas</option>
+        <option>Botas</option>
+        <option>Protetor Auricular</option>
+        <option>Máscara</option>
+        <option>Avental</option>
+        <option>Cinto de Segurança</option>
+        <option>Coletes Refletivos</option>
+    </select>
+</div>
 
-            <select required>
-                <option value="">Nome do Equipamento</option>
-                <option>Capacete de Segurança</option>
-                <option>Óculos de Proteção</option>
-                <option>Luvas Anticorte</option>
-            </select>
+<!-- Fabricante -->
+<div>
+    <label class="block text-gray-700 font-medium mb-1">Fabricante</label>
+    <select name="fabricante" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+        <option value="">Selecione...</option>
+        <option>3M</option>
+        <option>Vonder</option>
+        <option>Bracol</option>
+        <option>Kalipso</option>
+        <option>CarboGrafite</option>
+        <option>Steelpro</option>
+        <option>Delta Plus</option>
+        <option>Volk do Brasil</option>
+    </select>
+</div>
 
-            <select required>
-                <option value="">Fabricante</option>
-                <option>3M</option>
-                <option>Vonder</option>
-                <option>Bracol</option>
-            </select>
+<!-- Tamanho ou Numeração -->
+<div>
+    <label class="block text-gray-700 font-medium mb-1">Tamanho / Numeração</label>
+    <select id="tamanho" name="tamanho" required class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+        <!-- Opções padrão -->
+        <option value="">Selecione...</option>
+        <option>PP</option>
+        <option>P</option>
+        <option>M</option>
+        <option>G</option>
+        <option>GG</option>
+        <option>Único</option>
+    </select>
+</div>
 
-            <div class="button-group">
-                <button type="submit" class="btn-dark">Cadastrar</button>
-                <button type="button" class="btn-dark">Estoque</button>
-            </div>
-        </form>
-    </main>
-{% endblock content %}
+<!-- Saldo -->
+<div>
+    <label class="block text-gray-700 font-medium mb-1">Saldo</label>
+    <input type="number" name="saldo" min="0" required placeholder="Quantidade em estoque"
+           class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+</div>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Colaboradores</title>
+    <style>
+        table {
+            width: 70%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        form {
+            display: inline;
+        }
+        input[type=text], input[type=email] {
+            width: 90%;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerenciar Colaboradores</h1>
+
+    <table>
+        <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Cargo</th>
+            <th>Ações</th>
+        </tr>
+        {% for c in colaboradores %}
+        <tr>
+            <form method="post">
+                {% csrf_token %}
+                <td><input type="text" name="nome" value="{{ c.nome }}"></td>
+                <td><input type="email" name="email" value="{{ c.email }}"></td>
+                <td><input type="text" name="cargo" value="{{ c.cargo }}"></td>
+                <td>
+                    <!-- Botão de editar -->
+                    <input type="hidden" name="editar_id" value="{{ c.id }}">
+                    <button type="submit">Salvar</button>
+                </form>
+                <!-- Botão de remover -->
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="remover_id" value="{{ c.id }}">
+                    <button type="submit" style="background-color:red;color:white;">Remover</button>
+                </form>
+                </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>

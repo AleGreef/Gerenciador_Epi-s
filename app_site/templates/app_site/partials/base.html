@@ -1,16 +1,22 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock title %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
+    <title>{% block title %}Sistema EPI{% endblock title %}</title>
 
+    <!-- CSS global -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock extra_head %}
+</head>
+
+<body class="{% block body_class %}{% endblock body_class %}">
+
+    {% if not dashboard %}
+    <!-- Cabeçalho padrão (somente fora do dashboard) -->
     <header>
-        <!-- Fixed navbar -->
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
             <div class="container-fluid">
                 <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -19,7 +25,7 @@
                             <a class="nav-link active" aria-current="page" href="/">Menu</a>
                         </li>
                     </ul>
-                    <!-- Mover para a margem esquerda -->
+
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <a class="nav-link" href="#">Voltar ao topo</a>
@@ -29,18 +35,26 @@
             </div>
         </nav>
     </header>
+    {% endif %}
 
-    {% block content %}{% endblock content %}
+    <!-- Conteúdo da página -->
+    <main>
+        {% block content %}{% endblock content %}
+    </main>
 
+    {% if not dashboard %}
+    <!-- Rodapé padrão -->
     <footer>
         <div class="container">
             <ul>
                 <li><a href="#">Menu</a></li>
                 <li><a href="#">Voltar ao topo</a></li>
             </ul>
-            <p>© 2025 Minha Empresa. Todos os direitos reservados.</p>
+            <p>© 2025 Daniela Tombini. Todos os direitos reservados.</p>
         </div>
     </footer>
-    
+    {% endif %}
+
+    {% block extra_scripts %}{% endblock extra_scripts %}
 </body>
 </html>

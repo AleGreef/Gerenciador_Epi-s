@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Setor(models.Model):
     id_setor = models.AutoField(primary_key=True)
@@ -20,9 +21,18 @@ class Colaboradores(models.Model):
     telefone = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(max_length=45, blank=True, null=True)
     senha = models.CharField(max_length=45, blank=True, null=True)
-    #id_setor = models.IntegerField(blank=True, null=True)
     cpf = models.CharField(unique=True, max_length=11, blank=True, null=True)
     tipo_colaborador = models.CharField(max_length=10, blank=True, null=True)
+
+    # Relacionamento com Setor SEM alterar nome da coluna no MySQL
+    id_setor = models.ForeignKey(
+        Setor,
+        models.SET_NULL,
+        db_column='id_setor',
+        blank=True,
+        null=True
+    )
+
     delete_flag = models.CharField(max_length=1, blank=True, null=True)
 
     class Meta:
@@ -72,6 +82,19 @@ class Emprestimos(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['colaborador', 'epis'], name='unique_colaborador_epis')
         ]
+
+    def __str__(self):
+        return f"{self.colaborador.nome_colaborador} - {self.epis.nome_epi}"
+
+class Reserva(models.Model):
+    id_reserva = models.AutoField(primary_key=True)
+    colaborador = models.ForeignKey(Colaboradores, on_delete=models.CASCADE, db_column='id_col')
+    epis = models.ForeignKey(Epis, on_delete=models.CASCADE, db_column='id_epis')
+    data_reserva = models.DateField(blank=True, null=True)
+    delete_flag = models.CharField(max_length=1, blank=True, null=True)
+
+    class Meta:
+        db_table = 'Reserva'
 
     def __str__(self):
         return f"{self.colaborador.nome_colaborador} - {self.epis.nome_epi}"

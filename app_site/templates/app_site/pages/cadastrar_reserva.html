@@ -1,0 +1,19 @@
+{% extends "app_site/partials/base.html" %}
+{% block content %}
+<main class="content-center">
+    <form method="post">
+        {% csrf_token %}
+        
+        <label>Equipamento:</label>
+        <input type="text" name="equipamento" required>
+
+        <label>Colaborador:</label>
+        <input type="text" name="colaborador" required>
+
+        <label>Data da Reserva:</label>
+        <input type="date" name="data_reserva" required>
+
+        <button type="submit" class="btn-dark">Salvar</button>
+    </form>
+</main>
+{% endblock content %}

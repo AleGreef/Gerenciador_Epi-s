@@ -2,36 +2,44 @@
 
 {% load static %}
 
-{% block title %}Menu Princpal{% endblock title %}
+{% block title %}Menu Principal{% endblock title %}
 
 {% block content %}
-    <div class="menu-container">
-        <h1>Menu Principal</h1>
-        <div class="menu-buttons">
-            <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
-                👷‍♂️ Cadastrar Colaborador
-            </a>
-            <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
-                🧰 Cadastrar Equipamento
-            </a>
-            <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
-                📋 Visualizar Empréstimos
-            </a>
-        </div>
+<div class="menu-container">
+    <h1>Menu Principal</h1>
 
-         <h1>Lista de Colaboradores</h1>
-        <ul>
-            {% for c in colaboradores %}
-                <li>{{ c.nome }} {{ c.sobrenome }} - {{ c.cargo }} - {{ c.email }} - Admissão: {{ c.data_admissao }}</li>
-            {% empty %}
-                <li>Nenhum colaborador cadastrado</li>
-            {% endfor %}
-        </ul>
-
-        <div class="extra-buttons">
-            <a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>
-            <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
-        </div>
+    <div class="menu-buttons">
+        <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
+            👷‍♂️ Cadastrar Colaborador
+        </a>
+        <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
+            🧰 Cadastrar Equipamento
+        </a>
+        <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
+            📋 Visualizar Empréstimos
+        </a>
+        <a href="{% url 'cadastrar_reserva' %}" class="menu-btn">
+            📌 Cadastrar Reserva
+        </a>
     </div>
 
+    <h2>Lista de Colaboradores</h2>
+    <ul class="colaboradores-list">
+        {% for c in colaboradores %}
+            <li>
+                <strong>{{ c.nome_colaborador }}</strong>
+                {% if c.tipo_colaborador %}- {{ c.tipo_colaborador }}{% endif %}
+                {% if c.email %}- {{ c.email }}{% endif %}
+                {% if c.data_nasc %}- Nascimento: {{ c.data_nasc|date:"d/m/Y" }}{% endif %}
+            </li>
+        {% empty %}
+            <li>Nenhum colaborador cadastrado</li>
+        {% endfor %}
+    </ul>
+
+    <div class="extra-buttons">
+        <a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>
+        <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
+    </div>
+</div>
 {% endblock content %}

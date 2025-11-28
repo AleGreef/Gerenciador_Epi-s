@@ -13,8 +13,14 @@ urlpatterns = [
     path('lista_colaborador/', views.lista_colaborador, name='lista_colaborador'),
     path('login/', views.login, name='login'),
     path('perfil/', views.perfil, name='perfil'),
-    path('gerenciar_colaboradores/editar/<int:id>/', views.editar_colaboradores, name='editar_colaboradores'),
     path('excluir_colaborador/', views.excluir_colaborador, name='excluir_colaborador'),
+    path('editar_colaborador/<str:cpf>/', views.editar_colaborador, name='editar_colaborador'),
+    path('excluir_colaborador/', views.excluir_colaborador, name='excluir_colaborador'),
+
+
+
+
+
 ]
 
 if settings.DEBUG:

@@ -1,46 +1,134 @@
 {% extends "app_site/partials/base.html" %}
-
 {% load static %}
 
-{% block title %}Cadastrar Equipamentos{% endblock title %}
+{% block title %}Cadastro de Equipamentos{% endblock title %}
 
 {% block content %}
-<main class="container-fluid">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Cadastro de Equipamentos</h4>
-            <a href="">Ver Lista</a>
+
+<div class="container mt-4" style="margin-left: 260px;">
+
+    <h2>Cadastro de Equipamentos</h2>
+    <hr>
+
+    <form method="POST" action="{% url 'cadastrar_equipamento' %}" id="form-equip">
+        {% csrf_token %}
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <label>Tipo de Acessório</label>
+                <select name="tipo_acessorio" id="tipo_acessorio" class="form-control" required>
+                    <option value="">Selecione</option>
+                    <option value="Sapato">Sapato</option>
+                    <option value="Luva">Luva</option>
+                    <option value="Oculos">Óculos</option>
+                    <option value="Roupa">Roupa</option>
+                    <option value="Capacete">Capacete</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label>Tamanho</label>
+                <select name="tamanho" id="tamanho" class="form-control" required>
+                    <option value="">Selecione o tipo primeiro</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label>Fabricante</label>
+                <input type="text" class="form-control" name="fabricante" required>
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <label>Nome do Equipamento</label>
+                <input type="text" class="form-control" name="nome_epi" required>
+            </div>
+
+            <div class="col-md-3 mt-3">
+                <label>Saldo</label>
+                <input type="number" class="form-control" step="0.01" name="saldo" required>
+            </div>
+
+            <div class="col-md-3 mt-3">
+                <label>Emprestado</label>
+                <input type="number" class="form-control" step="0.01" name="emprestado" value="0" required>
+            </div>
         </div>
-        <div class="card-body">
-            <form class="form-equipamentos">
-                <select required class="form-select" >
-                    <option value="">Tipo de Acessório</option>
-                    <option>Capacete</option>
-                    <option>Óculos</option>
-                    <option>Luvas</option>
-                </select>
 
-                <select required class="form-select" >
-                    <option value="">Nome do Equipamento</option>
-                    <option>Capacete de Segurança</option>
-                    <option>Óculos de Proteção</option>
-                    <option>Luvas Anticorte</option>
-                </select>
+        <button class="btn btn-success mt-4" type="submit">Cadastrar</button>
+    </form>
 
-                <select required class="form-select" >
-                    <option value="">Fabricante</option>
-                    <option>3M</option>
-                    <option>Vonder</option>
-                    <option>Bracol</option>
-                </select>
+    <hr class="mt-4">
 
-                <div class="button-group">
-                    <button type="submit" class="btn-dark">Cadastrar</button>
-                    <button type="button" class="btn-dark">Estoque</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</main>
+    <h3>Equipamentos Cadastrados</h3>
+
+    {% if equipamentos %}
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Fabricante</th>
+                <th>Tamanho</th>
+                <th>Tipo</th>
+                <th>Saldo</th>
+                <th>Emprestado</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for e in equipamentos %}
+            <tr>
+                <td>{{ e.id_epis }}</td>
+                <td>{{ e.nome_epi }}</td>
+                <td>{{ e.fabricante }}</td>
+                <td>{{ e.tamanho }}</td>
+                <td>{{ e.tipo_acessorio }}</td>
+                <td>{{ e.saldo }}</td>
+                <td>{{ e.emprestado }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+        <p>Nenhum equipamento cadastrado ainda.</p>
+    {% endif %}
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const tipo = document.getElementById("tipo_acessorio");
+    const tamanho = document.getElementById("tamanho");
+
+    const tamanhos = {
+        "Sapato": ["38","39","40","41","42","43","44","45","46"],
+        "Roupa": ["P","M","G","GG","XG"],
+        "Luva": ["P","M","G","GG","XG"],
+        "Capacete": ["1","2","3","4","5"],
+        "Oculos": ["Único"],
+        "Outros": ["Único"]
+    };
+
+    tipo.addEventListener("change", function () {
+        const t = tipo.value;
+        tamanho.innerHTML = "";
+
+        if (t && tamanhos[t]) {
+            tamanhos[t].forEach(function(val){
+                let op = document.createElement("option");
+                op.value = val;
+                op.textContent = val;
+                tamanho.appendChild(op);
+            });
+        } else {
+            tamanho.innerHTML = "<option value=''>Selecione o tipo primeiro</option>";
+        }
+    });
+});
+</script>
 
 {% endblock content %}

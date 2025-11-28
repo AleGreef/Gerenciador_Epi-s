@@ -1,37 +1,79 @@
 {% extends "app_site/partials/base.html" %}
-
 {% load static %}
 
-{% block title %}Menu Princpal{% endblock title %}
+{% block title %}Menu Principal{% endblock title %}
 
 {% block content %}
-    <div class="menu-container">
-        <h1>Menu Principal</h1>
-        <div class="menu-buttons">
-            <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
-                👷‍♂️ Cadastrar Colaborador
-            </a>
-            <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
-                🧰 Cadastrar Equipamento
-            </a>
-            <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
-                📋 Visualizar Empréstimos
-            </a>
-        </div>
 
-         <h1>Lista de Colaboradores</h1>
-        <ul>
-            {% for c in colaboradores %}
-                <li>{{ c.nome }} {{ c.sobrenome }} - {{ c.cargo }} - {{ c.email }} - Admissão: {{ c.data_admissao }}</li>
-            {% empty %}
-                <li>Nenhum colaborador cadastrado</li>
-            {% endfor %}
-        </ul>
+<div class="container" style="margin-left: 260px; margin-top: 40px;">
+    <h2>Colaboradores cadastrados</h2>
+    <input type="text" id="filtro" class="form-control mt-3"
+       placeholder="Pesquisar colaborador pelo nome...">
 
-        <div class="extra-buttons">
-            <a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>
-            <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
-        </div>
-    </div>
+
+    {% if colaboradores %}
+        <table class="table table-striped table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Data nascimento</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                    <th>CPF</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for col in colaboradores %}
+                <tr class="linha-colaborador"
+                    data-url="{% url 'editar_colaborador' col.cpf %}"
+                    style="cursor: pointer;">
+                    <td>{{ col.id_col }}</td>
+                    <td>{{ col.nome_colaborador }}</td>
+                    <td>{{ col.data_nasc }}</td>
+                    <td>{{ col.telefone }}</td>
+                    <td>{{ col.email }}</td>
+                    <td>{{ col.cpf }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>Nenhum colaborador cadastrado até o momento.</p>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Duplo clique para editar (continua igual)
+    document.querySelectorAll('.linha-colaborador').forEach(function(row) {
+        row.addEventListener('dblclick', function() {
+            const url = this.dataset.url;
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
+    // Filtro por nome
+    const filtro = document.getElementById('filtro');
+    const linhas = document.querySelectorAll('.linha-colaborador');
+
+    filtro.addEventListener('keyup', function() {
+        const texto = this.value.toLowerCase();
+
+        linhas.forEach(function(linha) {
+            const nome = linha.children[1].textContent.toLowerCase();
+            linha.style.display = nome.includes(texto) ? '' : 'none';
+        });
+    });
+
+});
+</script>
+
+
 
 {% endblock content %}

@@ -46,6 +46,9 @@ class Epis(models.Model):
     fabricante = models.CharField(max_length=45, blank=True, null=True)
     tamanho = models.CharField(max_length=45, blank=True, null=True)
     delete_flag  = models.CharField(max_length=1, blank=True, null=True)
+    saldo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    emprestado = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
 
     class Meta:
         db_table = 'Epis'
@@ -67,7 +70,7 @@ class Estoque(models.Model):
 
 
 class Emprestimos(models.Model):
-    colaborador = models.ForeignKey(Colaboradores, on_delete=models.CASCADE)
+    cpf_colaborador = models.CharField(max_length=11, null=True, blank=True)
     epis = models.ForeignKey(Epis, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(blank=True, null=True)
     data_devolucao = models.DateTimeField(blank=True, null=True)

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 
 class Setor(models.Model):
     id_setor = models.AutoField(primary_key=True)
@@ -31,7 +32,12 @@ class Colaboradores(models.Model):
 
     def __str__(self):
         return self.nome_colaborador
-
+    
+    def format_cpf(self):
+        if len(self.cpf) ==11:
+            return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9: ]}"
+        return self.cpf or ''
+    
 
 class Epis(models.Model):
     id_epis = models.AutoField(primary_key=True)

@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,18 @@
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
+    <title>{% block title %}Sistema EPI{% endblock title %}</title>
 
+    <!-- CSS global -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock extra_head %}
+</head>
+
+<body class="{% block body_class %}{% endblock body_class %}">
+
+    {% if not dashboard %}
+    <!-- Cabeçalho padrão (somente fora do dashboard) -->
     <header>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
             <div class="container-fluid">
@@ -48,6 +59,7 @@
             </div>
         </nav>
     </header>
+    {% endif %}
 
 
     <div class="sidebar">
@@ -91,13 +103,15 @@
         {% block content %}{% endblock content %}
     </div>
 
+    {% if not dashboard %}
+    <!-- Rodapé padrão -->
     <footer>
         <div class="container">
             <ul>
                 <li><a href="#">Menu</a></li>
                 <li><a href="#">Voltar ao topo</a></li>
             </ul>
-            <p>© 2025 Minha Empresa. Todos os direitos reservados.</p>
+            <p>© 2025 Daniela Tombini. Todos os direitos reservados.</p>
         </div>
     </footer>
     <script src="{% static 'js/main.js' %}"></script>

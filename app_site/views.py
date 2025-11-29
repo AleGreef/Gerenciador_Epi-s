@@ -182,44 +182,30 @@ def realizar_reserva(request):
         acao = request.POST.get("acao")
         id_reserva = request.POST.get("id_reserva")
 
-        # EXCLUIR
-        if acao == "excluir" and id_reserva:
-            Reservas.objects.filter(id_reserva=id_reserva).update(delete_flag='S')
-            messages.success(request, "Reserva excluída com sucesso.")
+        # ===========================
+        # EXCLUIR — IGNORA TODO O RESTO
+        # ===========================
+        if acao == "excluir":
+            if id_reserva:
+                Reservas.objects.filter(id_reserva=id_reserva).update(delete_flag='S')
+                messages.success(request, "Reserva excluída com sucesso.")
+            else:
+                messages.error(request, "Nenhuma reserva selecionada para excluir.")
             return redirect('realizar_reserva')
+        # ===========================
 
-        # SALVAR / ATUALIZAR
+        # A partir daqui é SALVAR / EDITAR
         colaborador_id = request.POST.get('colaborador')
         epi_id = request.POST.get('epi')
-
-        # VALIDAÇÕES IMPORTANTES
-        if not colaborador_id:
-            messages.error(request, "Selecione um colaborador antes de salvar.")
-            return redirect('realizar_reserva')
-
-        if not epi_id:
-            messages.error(request, "Selecione um EPI antes de salvar.")
-            return redirect('realizar_reserva')
 
         quantidade = int(request.POST.get('quantidade'))
         data_retirada = request.POST.get('data_retirada')
         data_devolucao = request.POST.get('data_devolucao')
         status = request.POST.get('status')
 
-        # Buscar objetos
-        try:
-            colaborador = Colaboradores.objects.get(id_col=colaborador_id)
-        except Colaboradores.DoesNotExist:
-            messages.error(request, "Colaborador não encontrado!")
-            return redirect('realizar_reserva')
+        colaborador = Colaboradores.objects.get(id_col=colaborador_id)
+        epi = Epis.objects.get(id_epis=epi_id)
 
-        try:
-            epi = Epis.objects.get(id_epis=epi_id)
-        except Epis.DoesNotExist:
-            messages.error(request, "EPI não encontrado!")
-            return redirect('realizar_reserva')
-
-        # NOVA RESERVA
         if not id_reserva:
             Reservas.objects.create(
                 cpf=colaborador.cpf,
@@ -230,8 +216,6 @@ def realizar_reserva(request):
                 status=status
             )
             messages.success(request, "Reserva cadastrada com sucesso!")
-
-        # ATUALIZAR RESERVA
         else:
             Reservas.objects.filter(id_reserva=id_reserva).update(
                 cpf=colaborador.cpf,

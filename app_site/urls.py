@@ -16,10 +16,7 @@ urlpatterns = [
     path('excluir_colaborador/', views.excluir_colaborador, name='excluir_colaborador'),
     path('editar_colaborador/<str:cpf>/', views.editar_colaborador, name='editar_colaborador'),
     path('excluir_colaborador/', views.excluir_colaborador, name='excluir_colaborador'),
-
-
-
-
+    path("realizar_reserva/", views.realizar_reserva, name="realizar_reserva"),
 
 ]
 

@@ -6,6 +6,13 @@ from django.db import IntegrityError
 from app_site.models import Colaboradores, Setor
 from django.views.decorators.csrf import csrf_exempt
 from .models import Epis
+from .models import Colaboradores, Epis, Reservas
+from django.contrib import messages
+import datetime
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Colaboradores, Epis, Reservas
+
 
 
 def cadastrar_equipamento(request):
@@ -163,4 +170,62 @@ def cadastrar_equipamento(request):
 
     return render(request, "app_site/pages/cadastrar_equipamento.html", {
         'equipamentos': equipamentos
+    })
+
+
+def realizar_reserva(request):
+    colaboradores = Colaboradores.objects.filter(delete_flag='N')
+    epis = Epis.objects.filter(delete_flag='N')
+    reservas = Reservas.objects.filter(delete_flag='N')
+
+    if request.method == "POST":
+        acao = request.POST.get("acao")
+        id_reserva = request.POST.get("id_reserva")
+
+        # EXCLUIR
+        if acao == "excluir" and id_reserva:
+            Reservas.objects.filter(id_reserva=id_reserva).update(delete_flag='S')
+            messages.success(request, "Reserva excluída com sucesso.")
+            return redirect('realizar_reserva')
+
+        # SALVAR / ATUALIZAR
+        colaborador_id = request.POST.get('colaborador')
+        epi_id = request.POST.get('epi')
+        quantidade = int(request.POST.get('quantidade'))
+        data_retirada = request.POST.get('data_retirada')
+        data_devolucao = request.POST.get('data_devolucao')
+        status = request.POST.get('status')
+
+        colaborador = Colaboradores.objects.get(id_col=colaborador_id)
+        epi = Epis.objects.get(id_epis=epi_id)
+
+        # Novo registro
+        if not id_reserva:
+            Reservas.objects.create(
+                cpf=colaborador.cpf,
+                cod_epi=epi.id_epis,
+                quantidade=quantidade,
+                data_retirada=data_retirada,
+                data_devolucao=data_devolucao,
+                status=status
+            )
+            messages.success(request, "Reserva cadastrada com sucesso!")
+        else:
+            # Atualizar registro existente
+            Reservas.objects.filter(id_reserva=id_reserva).update(
+                cpf=colaborador.cpf,
+                cod_epi=epi.id_epis,
+                quantidade=quantidade,
+                data_retirada=data_retirada,
+                data_devolucao=data_devolucao,
+                status=status
+            )
+            messages.success(request, "Reserva atualizada com sucesso!")
+
+        return redirect('realizar_reserva')
+
+    return render(request, "app_site/pages/realizar_reserva.html", {
+        "colaboradores": colaboradores,
+        "epis": epis,
+        "reservas": reservas,
     })

@@ -38,6 +38,21 @@ class Colaboradores(models.Model):
             return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9: ]}"
         return self.cpf or ''
     
+class Reservas(models.Model):
+    id_reserva = models.AutoField(primary_key=True)
+    cpf = models.CharField(max_length=11)
+    cod_epi = models.IntegerField()
+    quantidade = models.IntegerField()
+    data_retirada = models.DateField()
+    data_devolucao = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20)
+    delete_flag = models.CharField(max_length=1, default='N')
+
+    class Meta:
+        db_table = 'Reservas'
+
+
+    
 
 class Epis(models.Model):
     id_epis = models.AutoField(primary_key=True)

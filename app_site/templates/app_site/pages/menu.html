@@ -7,31 +7,45 @@
 {% block content %}
     <div class="menu-container">
         <h1>Menu Principal</h1>
+        <hr>
         <div class="menu-buttons">
-            <a href="{% url 'cadastrar_colaborador' %}" class="menu-btn">
-                👷‍♂️ Cadastrar Colaborador
-            </a>
-            <a href="{% url 'cadastrar_equipamento' %}" class="menu-btn">
-                🧰 Cadastrar Equipamento
-            </a>
-            <a href="{% url 'visualizar_emprestimos' %}" class="menu-btn">
-                📋 Visualizar Empréstimos
-            </a>
+            <div class="button-row">
+                <a href="{% url 'colaboradores:cadastrar_colaborador' %}" class="menu-btn">
+                    👷‍♂️ Cadastrar Colaborador
+                </a>
+                <a href="{% url 'colaboradores:listar_colaborador' %}" class="menu-btn">
+                    📋 Visualizar colaboradores
+                </a>
+            </div>
+
+            <div class="button-row">
+                <a href="{% url 'colaboradores:cadastrar_equipamento' %}" class="menu-btn">
+                    🧰 Cadastrar Equipamento
+                </a>
+                <a href="{% url 'colaboradores:listar_equipamentos' %}" class="menu-btn">
+                    📋 Visualizar equipamentos
+                </a>
+            </div>
+
+            <div class="button-row">
+                <a href="{% url 'colaboradores:cadastrar_setor' %}" class="menu-btn">
+                    👷‍♂️ Cadastrar Setor
+                </a>
+                <a href="{% url 'colaboradores:listar_setor' %}" class="menu-btn">
+                    📋 Visualizar Setores
+                </a>
+            </div>
+            <div class="button-row">    
+                <a href="{% url 'colaboradores:realizar_emprestimo' %}" class="menu-btn">
+                    📋 Realizar Emprestimo de Epi
+                </a>
+                <a href="{% url 'colaboradores:listar_emprestimos' %}" class="menu-btn">
+                    📋 Visualizar Empréstimos
+                </a>
+            </div>    
         </div>
-
-         <h1>Lista de Colaboradores</h1>
-        <ul>
-            {% for c in colaboradores %}
-                <li>{{ c.nome }} {{ c.sobrenome }} - {{ c.cargo }} - {{ c.email }} - Admissão: {{ c.data_admissao }}</li>
-            {% empty %}
-                <li>Nenhum colaborador cadastrado</li>
-            {% endfor %}
-        </ul>
-
-        <div class="extra-buttons">
-            <a href="{% url 'menu' %}" class="secondary-btn">🏠 Voltar ao Menu</a>
+        <!--<div class="extra-buttons">
             <a href="#top" class="secondary-btn">⬆️ Voltar ao Topo</a>
-        </div>
-    </div>
-
+        </div>-->
+    </div> 
 {% endblock content %}

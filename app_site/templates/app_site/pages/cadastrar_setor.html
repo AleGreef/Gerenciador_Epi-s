@@ -1,0 +1,50 @@
+{% extends "app_site/partials/base.html" %}
+
+{% load static %}
+
+{% block title %}Cadastrar Setor{% endblock title %}
+
+{% block content %}
+  <div class="container-fluid" >
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Cadastro de Setores</h4>
+            <a href="{% url 'colaboradores:listar_setor' %}" class="btn btn-light btn-sm">Ver Lista</a>
+        </div>
+
+
+        <div class="card-body">
+            <form id="form-colaborador" method="POST"
+                action="{% if modo_edicao %}
+                            {% url 'colaboradores:editar_setor' setor.id_setor %}
+                        {% else %}
+                            {% url 'colaboradores:cadastrar_setor' %}
+                        {% endif %}">
+
+                {% csrf_token %}
+
+                <!-- Nome -->
+                <div class="mb-3">
+                    <label for="nome_setor" class="form-label">Nome do setor</label>
+                    <input type="text" id="nome_setor" name="nome_setor" class="form-control" value="{{ setor.nome_setor|default:'' }}" required>
+
+                </div>
+                <!-- Epis necessarios -->
+                <div class="mb-3">
+                    <label for="epis_necessario" class="form-label">Epis necessarios</label>
+                    <input type="text" id="epis_necessario" name="epis_necessario" class="form-control" value="{{ setor.epis_necessario|default:'' }}" required>
+
+                </div>
+
+                <!-- Botões -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        {% if modo_edicao %}Atualizar Setor{% else %}Cadastrar Setor{% endif %}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

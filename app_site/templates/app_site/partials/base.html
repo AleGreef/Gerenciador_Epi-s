@@ -1,54 +1,76 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock title %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'app_site/css/style.css' %}">
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
 </head>
+
 <body>
 
     <header>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
             <div class="container-fluid">
 
-                <!-- Itens da esquerda -->
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <nav class="navbar navbar-dark bg-dark px-3"> 
-                        <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="/">Menu</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Voltar ao topo</a>
-                            </li>
-                        </ul>
+                <a class="navbar-brand" href="#">Gerenciador de Epi's</a>
 
-                        <!-- Usuário logado à direita -->
-                        <div class="avatar">
-                            <div class="ms-auto d-flex align-items-right">
-                                <a href="/perfil/" class="d-flex align-items-center text-decoration-none text-white">
-                                    <span>Alefer</span>
-                                    <img src="{% static 'img/foto_teste.jpg' %}"
-                                        alt="Foto de perfil"
-                                        width="40" height="40"
-                                        loading="lazy"
-                                        class="rounded-circle border border-light me-2">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse w-100 d-flex justify-content-end" id="navbarCollapse">
+                    <ul class="navbar-nav mb-2 mb-md-0 d-flex align-items-center">
+
+                        <li class="nav-item d-flex align-items-center me-3">
+                            {% load static %}
+                            
+                            {% if colaborador_logado %}
+                                <a class="navbar-brand d-flex align-items-center" href="{% url 'colaboradores:perfil'%}">
+                                    <span class="navbar-text me-2">
+                                            {{ nome_colaborador }}
+                                    </span>
+
+                                    {% if colaborador_logado.foto_perfil %}
+                                        <img src="{{ colaborador_logado.foto_perfil.url }}" 
+                                            alt="Foto de perfil" 
+                                            width="40" height="40"
+                                            class="rounded-circle border border-light" 
+                                            style="object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'app_site/img/foto_teste.jpg' %}" 
+                                            alt="Sem foto" 
+                                            width="40" height="40"
+                                            class="rounded-circle border border-light">
+                                    {% endif %}
                                 </a>
-                            </div>
-                        </div>
-                        
-                                  
-                        
-                    </nav>
+                                
+                            {% else %}
+                                <a class="navbar-brand d-flex align-items-center" href="{% url 'colaboradores:perfil'%}">
+                                    <span class="navbar-text me-2">
+                                        {{ request.user.first_name|default:request.user.email }}
+                                    </span>
+                                    <img src="{% static 'app_site/img/foto_teste.jpg' %}" alt="Sem foto" width="40" height="40"
+                                        class="rounded-circle border border-light">
+                                </a>
+                            {% endif %}
+                        </li>
+
+                        <li class="nav-item">
+                            <form method="POST" action="{% url 'accounts:logout' %}" class="d-flex">
+                                {% csrf_token %}
+                                <button class="btn btn-danger btn-sm">Sair</button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </nav>
     </header>
-
 
     <div class="sidebar">
         <div class="logo-details">
@@ -57,52 +79,57 @@
         </div>
         <ul class="nav-list">
             <li>
-                <a href="{% url 'menu' %}">
+                <a href="{% url 'colaboradores:menu' %}">
                 <i class='bx bx-grid-alt'></i>
                 <span class="links_name">Menu</span>
                 </a>
                 <span class="tooltip">Menu</span>
             </li>
             <li>
-                <a href="{% url 'cadastrar_colaborador' %}">
-                    <i class='bx bx-user' ></i>
-                    <span class="links_name">Cadast. Colaborador</span>
+                <a href="{% url 'colaboradores:perfil' %}">
+                <i class='bx bx-user' ></i>
+                <span class="links_name">Perfil</span>
                 </a>
-                <span class="tooltip">Cadastrar Colaborador</span>
-            </li>
-            <li>
-                <a href="{% url 'cadastrar_equipamento' %}">
-                    <i class='bx bx-chat' ></i>
-                    <span class="links_name">Cadast. Equipamento</span>
-                </a>
-                <span class="tooltip">Cadastrar Equipamento</span>
-            </li>
-            <li>
-                <a href="{% url 'visualizar_emprestimos' %}">
-                    <i class='bx bx-chat' ></i>
-                    <span class="links_name">Visualizar Eqmprestimos</span>
-                </a>
-                <span class="tooltip">Visualizar Eqmprestimos</span>
+                <span class="tooltip">Perfil</span>
             </li>
         </ul>
     </div>
 
     <div class="main-content">
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                        <strong>
+                            {% if 'success' in message.tags %}
+                                ✔️ Sucesso:
+                            {% elif 'error' in message.tags or 'danger' in message.tags %}
+                                ❌ Erro:
+                            {% elif 'warning' in message.tags %}
+                                ⚠️ Atenção:
+                            {% elif 'info' in message.tags %}
+                                ℹ️ Info:
+                            {% endif %}
+                        </strong>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         {% block content %}{% endblock content %}
+        
+        <footer>
+            <div class="container">
+                <p>© 2025 Minha Empresa. Todos os direitos reservados.</p>
+            </div>
+        </footer>
     </div>
 
-    <footer>
-        <div class="container">
-            <ul>
-                <li><a href="#">Menu</a></li>
-                <li><a href="#">Voltar ao topo</a></li>
-            </ul>
-            <p>© 2025 Minha Empresa. Todos os direitos reservados.</p>
-        </div>
-    </footer>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script src="{% static 'app_site/js/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

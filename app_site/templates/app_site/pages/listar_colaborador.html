@@ -1,0 +1,118 @@
+{% extends "app_site/partials/base.html" %}
+{% load static %}
+
+{% block title %}Lista de Colaboradores{% endblock title %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Lista de Colaboradores</h4>
+        <a href="{% url 'colaboradores:cadastrar_colaborador' %}" 
+                class="btn btn-cadastro shadow-sm">
+                + Cadastrar
+            </a>
+    </div>
+
+    <div class="card-body">
+        <!-- Barra de pesquisa -->
+        <div class="mb-3" style="max-width: 1000px;">
+            <form>
+                <div class="d-flex gap-20">
+                    <input type="text" class="form-control" placeholder="Pesquisar colaborador..." name="nome_colaborador" value="{{ pesquisa }}">
+                    <button type="submit" class="btn btn-primary">Pesquisar</button>
+                </div>
+                {% if pesquisa %}
+                        <a href="{% url 'colaboradores:listar_colaborador' %}">Limpar Pesquisa</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Tabela -->
+        {% if colaboradores %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Foto</th>
+                            <th>Nome</th>
+                            <th>Data de Nascimento</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>CPF</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in colaboradores %}
+                            <tr>
+                                <td>
+                                    {% if c.foto_perfil %}
+                                        <img src="{{ c.foto_perfil.url }}" 
+                                            class="rounded-circle" width="40" height="40" 
+                                            style="object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'img/foto_teste.jpg' %}" alt="Sem foto" 
+                                            class="rounded-circle" width="40" height="40">
+                                    {% endif %}
+                                </td>
+                                <td>{{ c.nome_colaborador }}</td>
+                                <td>{{ c.format_data_nasc }}</td>
+                                <td>{{ c.format_telefone }}</td>
+                                <td>{{ c.email }}</td>
+                                <td>{{ c.format_cpf }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'colaboradores:editar_colaborador' c.id_col %}" 
+                                        class="btn btn-warning btn-sm">
+                                        Editar
+                                        </a>
+
+                                        <!-- Botão que abre o modal -->
+                                        <button class="btn btn-danger btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalRemover{{ c.id_col }}">
+                                            Remover
+                                        </button>
+
+                                        <!-- Modal de confirmação -->
+                                        <div class="modal fade" id="modalRemover{{ c.id_col }}" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">Excluir Colaborador</h5>
+                                                    </div>
+
+                                                    <div class="modal-body">
+                                                        Tem certeza que deseja remover o colaborador(a) 
+                                                        <strong>{{ c.nome_colaborador }}</strong>?
+                                                    </div>
+
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'colaboradores:remover_colaborador' c.id_col %}" 
+                                                        class="btn btn-danger">
+                                                            Remover
+                                                        </a>
+                                                        
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                            Cancelar
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center text-muted mb-0">Nenhum colaborador cadastrado.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

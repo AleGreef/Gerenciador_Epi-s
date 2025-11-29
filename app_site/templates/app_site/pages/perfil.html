@@ -46,13 +46,27 @@
 </head>
 <body>
 
-    <div class="profile-card">
-        <img src="{% static 'img/foto_teste.jpg' %}" alt="Foto do Usuário">
-        <h3>Alefer Greef</h3>
-        <p>alefer@email.com</p>
+    <div class="profile-card"> 
+        {% if colaborador and colaborador.foto_perfil %}
+            <img src="{{ colaborador.foto_perfil.url }}" alt="Foto do Usuário">
+        {% else %}
+            <img src="{% static 'img/default_user.png' %}" alt="Sem foto">
+        {% endif %}
+
+        <h3>{{ colaborador.nome_colaborador }}</h3>
+        <p>{{ colaborador.email }}</p>
 
         <div class="d-flex justify-content-center">
-            <a href="/editar_perfil/" class="btn btn-primary btn-edit">Editar Perfil</a>
+            {% if colaborador %}
+                <a href="{% url 'colaboradores:editar_colaborador' colaborador.id_col %}" 
+                class="btn btn-primary btn-edit">
+                    Editar Perfil
+                </a>
+            {% endif %}
+            <a href="{% url 'colaboradores:menu' %}" class="btn btn-secondary">
+                ← Voltar ao Menu
+            </a>
+
             <a href="/logout/" class="btn btn-outline-danger">Sair</a>
         </div>
     </div>

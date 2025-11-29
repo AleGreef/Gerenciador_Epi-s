@@ -1,0 +1,62 @@
+{% extends "app_site/partials/base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Lista de Emprestimos</h4>
+        <a href="{% url 'colaboradores:realizar_emprestimo' %}" 
+            class="btn btn-cadastro shadow-sm">
+            + Cadastrar
+        </a>
+    </div>
+    <!-- Barra de pesquisa -->
+    <div class="card-body">
+        <div class="mb-3" style="max-width: 1000px;">
+            <form>
+                <div class="d-flex gap-20">
+                    <input type="text" class="form-control" placeholder="Pesquisar Emprestimo..." name="colaborador_id" value="{{ pesquisa }}">
+                    <button type="submit" class="btn btn-primary">Pesquisar</button>
+                </div>
+                {% if pesquisa %}
+                        <a href="{% url 'colaboradores:listar_emprestimos' %}">Limpar Pesquisa</a>
+                {% endif %}
+            </form>
+        </div>
+        
+            {% if emprestimos %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Status</th>
+                                <th>Cod. Colaborador</th>
+                                <th>Data Ret.</th>
+                                <th>Data Dev.</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in emprestimos %}
+                                <tr>
+                                    <td>{{ c.status}}</td>
+                                    <td>{{ c.colaborador_id }}</td>
+                                    <td>{{ c.data_emprestimo}}</td>
+                                    <td>{{ c.data_devolucao}}</td>
+                                    <td>
+                                        
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">Nenhum emprestimo cadastrado.</p>
+            {% endif %}
+        
+    </div>    
+</div>    
+
+{% endblock content %}

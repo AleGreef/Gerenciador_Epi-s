@@ -1,0 +1,111 @@
+{% extends "app_site/partials/base.html" %}
+{% load static %}
+
+{% block title %}Lista de Equipamentos{% endblock title %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Lista de Equipamentos</h4>
+        <a href="{% url 'colaboradores:cadastrar_equipamento' %}" 
+            class="btn btn-cadastro shadow-sm">
+            + Cadastrar
+        </a>
+    </div>
+    <div class="card-body">
+        <!-- Barra de pesquisa -->
+        <div class="mb-3" style="max-width: 1000px;">
+            <form>
+                <div class="d-flex gap-20">
+                    <input type="text" class="form-control" placeholder="Pesquisar equipamento..." name="nome_epi" value="{{ pesquisa }}">
+                    <button type="submit" class="btn btn-primary">Pesquisar</button>
+                </div>
+                {% if pesquisa %}
+                        <a href="{% url 'colaboradores:listar_equipamentos' %}">Limpar Pesquisa</a>
+                {% endif %}
+            </form>
+        </div>
+
+    
+        {% if epis %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nome do equipamento</th>
+                            <th>Tipo de acessorio</th>
+                            <th>Fabricante</th>
+                            <th>Data de Validade</th>
+                            <th>tamanho disponivel</th>
+                            <th>Quantidade em estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in epis %}
+                            <tr>
+                                <td>{{ c.nome_epi }}</td>
+                                <td>{{ c.tipo_acessorio }}</td>
+                                <td>{{ c.fabricante }}</td>
+                                <td>{{ c.data_validade }}</td>
+                                <td>{{ c.tamanho }}</td>
+                                <td>{{ c.qtd_estoque }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'colaboradores:editar_equipamento' c.id_epis %}" 
+                                        class="btn btn-warning btn-sm">
+                                        Editar
+                                        </a>
+
+                                        <!-- Botão que abre o modal -->
+                                        <button class="btn btn-danger btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalRemover{{ c.id_epis }}">
+                                            Remover
+                                        </button>
+
+                                        <!-- Modal de confirmação -->
+                                        <div class="modal fade" id="modalRemover{{ c.id_epis }}" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">Excluir Equipamento</h5>
+                                                    </div>
+
+                                                    <div class="modal-body">
+                                                        Tem certeza que deseja remover o equipamento(a) 
+                                                        <strong>{{ c.nome_epi }}</strong>?
+                                                    </div>
+
+                                                    <div class="modal-footer">
+                                                        <a href="{% url 'colaboradores:remover_equipamento' c.id_epis %}" 
+                                                        class="btn btn-danger">
+                                                            Remover
+                                                        </a>
+                                                        
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                            Cancelar
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center text-muted">Nenhum equipamento cadastrado.</p>
+        {% endif %}
+    
+    </div>    
+    </div>
+
+{% endblock content %}

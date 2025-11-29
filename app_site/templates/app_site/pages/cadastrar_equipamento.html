@@ -1,46 +1,69 @@
 {% extends "app_site/partials/base.html" %}
-
 {% load static %}
 
 {% block title %}Cadastrar Equipamentos{% endblock title %}
 
 {% block content %}
-<main class="container-fluid">
+
+<div class="container-fluid" >
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Cadastro de Equipamentos</h4>
-            <a href="">Ver Lista</a>
+            <a href="{% url 'colaboradores:listar_equipamentos' %}" class="btn btn-light btn-sm">Ver Lista</a>
         </div>
+
         <div class="card-body">
-            <form class="form-equipamentos">
-                <select required class="form-select" >
-                    <option value="">Tipo de Acessório</option>
-                    <option>Capacete</option>
-                    <option>Óculos</option>
-                    <option>Luvas</option>
-                </select>
+            <form method="POST" action="{% if modo_edicao %}
+                    {% url 'colaboradores:editar_equipamento' equipamento.id_epis %}
+                {% else %}
+                    {% url 'colaboradores:cadastrar_equipamento' %}
+                {% endif %}">
+                {% csrf_token %}
+                
+                <!-- Nome do Equipamento -->
+                <div class="mb-3">
+                    <label for="nome_epi" class="form-label">Nome do equipamento</label>
+                    <input type="text" id="nome_epi" name="nome_epi" class="form-control" value="{{ equipamento.nome_epi|default:'' }}" required>
+                </div>
 
-                <select required class="form-select" >
-                    <option value="">Nome do Equipamento</option>
-                    <option>Capacete de Segurança</option>
-                    <option>Óculos de Proteção</option>
-                    <option>Luvas Anticorte</option>
-                </select>
+                <!-- tipo do equipamento -->
+                <div class="mb-3">
+                    <label for="tipo_acessorio" class="form-label">Tipo do equipamento</label>
+                    <input type="text" id="tipo_acessorio" name="tipo_acessorio" class="form-control" value="{{ equipamento.tipo_acessorio|default:'' }}" required>
+                </div>
 
-                <select required class="form-select" >
-                    <option value="">Fabricante</option>
-                    <option>3M</option>
-                    <option>Vonder</option>
-                    <option>Bracol</option>
-                </select>
+                <!-- Fabricante -->
+                <div class="mb-3">
+                    <label for="fabricante" class="form-label">Nome do fabricante</label>
+                    <input type="text" id="fabricante" name="fabricante" class="form-control" value="{{ equipamento.fabricante|default:'' }}" required>
+                </div>
 
-                <div class="button-group">
-                    <button type="submit" class="btn-dark">Cadastrar</button>
-                    <button type="button" class="btn-dark">Estoque</button>
+                <!-- Data de validade -->
+                <div class="mb-3">
+                    <label for="data_validade" class="form-label">Data de validade</label>
+                    <input type="date" id="data_validade" name="data_validade" class="form-control" value="{{ equipamento.data_validade|default:'' }}" required>
+                </div>
+
+                <!-- tamanho -->
+                <div class="mb-3">
+                    <label for="tamanho" class="form-label">Tamanho do EPi</label>
+                    <input type="text" id="tamanho" name="tamanho" class="form-control" value="{{ equipamento.tamanho|default:'' }}" required>
+                </div>
+
+                <!-- Estoque -->
+                <div class="mb-3">
+                    <label for="qtd_estoque" class="form-label">Quantidade no estoque</label>
+                    <input type="text" id="qtd_estoque" name="qtd_estoque" class="form-control" value="{{ equipamento.qtd_estoque|default:'' }}" required>
+                </div>
+
+                <!-- Botões -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        {% if modo_edicao %}Atualizar Equipamento{% else %}Cadastrar Equipamento{% endif %}
+                    </button>
                 </div>
             </form>
         </div>
     </div>
-</main>
-
+</div>
 {% endblock content %}

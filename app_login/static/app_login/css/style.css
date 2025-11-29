@@ -1,0 +1,149 @@
+/* ========== RESET & BASE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Regras base e Sticky Footer (Aplicado a TODAS as páginas) */
+html, body {
+    height: 100%; /* Garante 100% da altura da viewport */
+}
+
+:root {
+    --navbar-height: 55px; /* <-- Tente 55px, 60px ou 70px até ficar perfeito */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+ 
+    /* Configuração ESSENCIAL para Sticky Footer */
+    display: flex;
+    flex-direction: column; 
+    margin: 0; 
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Contêiner do Conteúdo - Empurra o footer para baixo */
+.content-wrapper { 
+    flex: 1 0 auto; 
+}
+
+/* ========== LAYOUT ========== */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Área do conteúdo principal (deve estar dentro do content-wrapper) */
+.main-content {
+    padding: 20px;
+    background-color: #f8f9fa;
+    /* Removido min-height: 100vh */
+    overflow-y: auto; 
+}
+
+/* ========== NAVBAR & AVATAR (Ajuste) ========== */
+
+.navbar img {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navbar img:hover {
+    transform: scale(1.05);
+}
+.navbar.navbar-dark {
+    /* Diminui o padding vertical (superior e inferior) */
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    /* Ou defina uma altura mínima se o padding não for suficiente */
+    min-height: 40px;
+}
+
+/* Opcional: Ajustar os links de navegação para compensar */
+.navbar-nav .nav-link {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+/* Opcional: Ajustar o título principal */
+.navbar-brand {
+    font-size: 1rem; /* Diminui a fonte do título */
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+/* Se for necessário posicionar o avatar fora do fluxo normal (raro em navbar) */
+/*.avatar { 
+    position: fixed;
+    top: 15px;
+    right: 60px;
+    width: 40px;
+    cursor: pointer;
+    z-index: 9999;
+}*/
+
+/* ========== Login (Estilos aplicados SOMENTE na página de Login) ========== */
+
+.login-page-container {
+    background: #f0f2f5; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute; 
+    top: var(--navbar-height);
+    min-height: calc(100vh - var(--navbar-height));
+    left: 0;
+    width: 100%;
+    padding-bottom: 70px;
+}
+
+.login-card {
+    max-width: 400px;
+    width: 90%; 
+    background-color: white; 
+}
+
+.login-card h2 {
+    color: #007bff; 
+    font-weight: 600;
+}
+
+.btn-login {
+    background-color: #007bff; 
+    border-color: #007bff;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #0056b3; 
+    border-color: #0056b3;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+/* ========== FOOTER ========== */
+footer {
+    background-color: #2c3e50;
+    color: #fff;
+    text-align: center;
+    padding: 15px 15px;
+}
+
+footer a {
+    color: #f39c12;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: #fff;
+}

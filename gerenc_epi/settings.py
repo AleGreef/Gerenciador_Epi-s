@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
     # meus app
     'app_site',
+    'app_login',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'app_site.context_processors.colaborador_logado_processor',
+                'app_site.context_processors.nome_colaborador',
+
             ],
         },
     },
@@ -70,9 +74,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "gerenc_epi",
-        "USER": "epi",
-        "PASSWORD": "aXnlduy@49ddi",
-        "HOST": "72.61.45.16",
+        "USER": "root",
+        "PASSWORD": "root",
+        "HOST": "localhost",
         "PORT": "3306",
         "OPTIONS": {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -80,6 +84,20 @@ DATABASES = {
     }
 }
 
+'''    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "gerenc_epi",
+            "USER": "epi",
+            "PASSWORD": "aXnlduy@49ddi",
+            "HOST": "72.61.45.16",
+            "PORT": "3306",
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    }
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -124,10 +142,16 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join('static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIAR_URL = '/media/'
+MEDIA_URL = '/media/'
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = '/accounts/criar_usuario/'
+
+#Evita que tenha dois user_auth cadastrado
+AUTH_USER_MODEL = "app_login.CustomUser"

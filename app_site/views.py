@@ -229,3 +229,75 @@ def realizar_reserva(request):
         "epis": epis,
         "reservas": reservas,
     })
+def Relatorio(request):
+    from django.db.models import Q
+    from datetime import date
+    
+    # Busca todas as reservas ativas
+    reservas_query = Reservas.objects.filter(delete_flag='N').order_by('-data_retirada')
+    
+    # Filtro de busca por nome ou CPF
+    busca = request.GET.get('busca', '')
+    if busca:
+        # Busca colaboradores que correspondem
+        colaboradores_encontrados = Colaboradores.objects.filter(
+            Q(nome_colaborador__icontains=busca) | 
+            Q(cpf__icontains=busca),
+            delete_flag='N'
+        ).values_list('cpf', flat=True)
+        
+        reservas_query = reservas_query.filter(cpf__in=colaboradores_encontrados)
+    
+    # Filtro de status
+    status_filtro = request.GET.get('status', '')
+    if status_filtro:
+        reservas_query = reservas_query.filter(status=status_filtro)
+    
+    # Monta lista com dados completos
+    reservas_lista = []
+    for reserva in reservas_query:
+        # Busca colaborador
+        colaborador = Colaboradores.objects.filter(cpf=reserva.cpf).first()
+        
+        # Busca EPI
+        epi = Epis.objects.filter(id_epis=reserva.cod_epi).first()
+        
+        # Calcula dias pendentes - INCLUINDO RESERVADO
+        dias_pendente = 0
+        if reserva.status.lower() in ['pendente', 'reservado', 'emprestado', 'ativo']:
+            dias_pendente = (date.today() - reserva.data_retirada).days
+        
+        reservas_lista.append({
+            'id': reserva.id_reserva,
+            'colaborador_nome': colaborador.nome_colaborador if colaborador else 'N/A',
+            'colaborador_cpf': colaborador.format_cpf() if colaborador else reserva.cpf,
+            'epi_nome': epi.nome_epi if epi else 'N/A',
+            'epi_tipo': epi.tipo_acessorio if epi else '',
+            'quantidade': reserva.quantidade,
+            'data_retirada': reserva.data_retirada,
+            'data_devolucao': reserva.data_devolucao,
+            'status': reserva.status,
+            'dias_pendente': dias_pendente
+        })
+    
+    # Estatísticas - INCLUINDO RESERVADO
+    total_reservas = Reservas.objects.filter(delete_flag='N').count()
+    total_pendentes = Reservas.objects.filter(
+        delete_flag='N',
+        status__in=['pendente', 'reservado', 'emprestado', 'ativo']
+    ).count()
+    total_devolvidos = Reservas.objects.filter(
+        delete_flag='N',
+        status__in=['devolvido', 'finalizado']
+    ).count()
+    
+    context = {
+        'reservas': reservas_lista,
+        'busca': busca,
+        'status': status_filtro,
+        'total_reservas': total_reservas,
+        'total_pendentes': total_pendentes,
+        'total_devolvidos': total_devolvidos,
+    }
+    
+    return render(request, 'app_site/pages/relatorio.html', context)

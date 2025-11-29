@@ -1,154 +1,191 @@
 {% extends "app_site/partials/base.html" %}
+
 {% load static %}
 
-{% block title %}Reservas de EPI{% endblock title %}
+{% block title %}Reservas de EPIs{% endblock title %}
 
 {% block content %}
 
 <div class="container" style="margin-left: 260px; margin-top: 40px;">
 
-    <h3>Reservas de EPIs</h3>
+    <h2>Realizar Reserva / Empréstimo</h2>
 
-    <!-- MENSAGENS -->
-    {% if messages %}
-        {% for msg in messages %}
-            <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <!-- FORM CADASTRO / EDIÇÃO -->
-    <form method="POST" id="formReserva">
+    <!-- FORMULÁRIO -->
+    <form method="POST">
         {% csrf_token %}
-        <input type="hidden" name="id_reserva" id="id_reserva">
+
+        <input type="hidden" id="id_reserva" name="id_reserva">
 
         <div class="row">
 
             <!-- COLABORADOR -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label>Colaborador</label>
-                <select name="colaborador" id="colaborador" class="form-control" required>
+                <select id="colaborador" name="colaborador" class="form-control">
                     <option value="">Selecione</option>
                     {% for c in colaboradores %}
-                        <option value="{{ c.id_col }}">{{ c.nome_colaborador }} - CPF: {{ c.cpf }}</option>
+                        <option value="{{ c.cpf }}">{{ c.nome_colaborador }} ({{ c.cpf }})</option>
                     {% endfor %}
                 </select>
             </div>
 
             <!-- EPI -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label>EPI</label>
-                <select name="epi" id="epi" class="form-control" required>
+                <select id="epi" name="epi" class="form-control">
                     <option value="">Selecione</option>
                     {% for e in epis %}
-                        <option value="{{ e.id_epis }}">
-                            {{ e.nome_epi }} - Tam: {{ e.tamanho }} - Saldo: {{ e.saldo }}
-                        </option>
+                        <option value="{{ e.id_epis }}">{{ e.nome_epi }} - Tam: {{ e.tamanho }}</option>
                     {% endfor %}
                 </select>
             </div>
 
             <!-- QUANTIDADE -->
-            <div class="col-md-4 mt-3">
+            <div class="col-md-2">
                 <label>Quantidade</label>
-                <input type="number" name="quantidade" id="quantidade" class="form-control" min="1" required>
+                <input type="number" id="quantidade" name="quantidade" class="form-control" min="1">
             </div>
 
+        </div>
+
+        <div class="row mt-3">
+
             <!-- DATA RETIRADA -->
-            <div class="col-md-4 mt-3">
-                <label>Data de Retirada</label>
-                <input type="date" name="data_retirada" id="data_retirada" class="form-control" required>
+            <div class="col-md-3">
+                <label>Data Retirada</label>
+                <input type="date" id="data_retirada" name="data_retirada" class="form-control">
             </div>
 
             <!-- DATA DEVOLUÇÃO -->
-            <div class="col-md-4 mt-3">
-                <label>Data de Devolução</label>
-                <input type="date" name="data_devolucao" id="data_devolucao" class="form-control">
+            <div class="col-md-3">
+                <label>Data Devolução</label>
+                <input type="date" id="data_devolucao" name="data_devolucao" class="form-control">
             </div>
 
             <!-- STATUS -->
-            <div class="col-md-4 mt-3">
+            <div class="col-md-3">
                 <label>Status</label>
-                <select name="status" id="status" class="form-control" required>
-                    <option value="Reservado">Reservado</option>
-                    <option value="Emprestado">Emprestado</option>
-                    <option value="Devolvido">Devolvido</option>
+                <select id="status" name="status" class="form-control">
+                    <option value="reservado">Reservado</option>
+                    <option value="emprestado">Emprestado</option>
+                    <option value="devolvido">Devolvido</option>
                 </select>
             </div>
+
         </div>
 
-        <div class="mt-4 d-flex gap-2">
-    <button class="btn btn-primary mr-2" name="acao" value="salvar" type="submit">
-        Salvar / Atualizar
-    </button>
+        <!-- BOTÕES -->
+        <div class="mt-4 d-flex gap-3">
 
-    <button class="btn btn-danger" name="acao" value="excluir" type="submit">
-        Excluir Reserva
-    </button>
-</div>
+            <button name="acao" value="salvar" class="btn btn-primary mr-3">
+                Salvar / Atualizar
+            </button>
+
+            <button name="acao" value="excluir" class="btn btn-danger">
+                Excluir Reserva
+            </button>
+
+            <button type="button" onclick="novaReserva()" class="btn btn-secondary ml-3">
+                Nova Reserva
+            </button>
+        </div>
 
     </form>
 
     <hr>
 
-    <!-- GRID -->
-    <h4 class="mt-4">Reservas cadastradas</h4>
+    <!-- TABELA DE RESERVAS -->
+    <h3 class="mt-4">Reservas Cadastradas</h3>
+
     <table class="table table-striped table-bordered mt-3">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Colaborador</th>
                 <th>EPI</th>
-                <th>Quantidade</th>
+                <th>Qtd</th>
                 <th>Retirada</th>
                 <th>Devolução</th>
                 <th>Status</th>
             </tr>
         </thead>
+
         <tbody>
             {% for r in reservas %}
-                <tr class="linha-reserva"
-    data-id="{{ r.id_reserva }}"
-    data-colaborador="{{ r.cpf }}"
-    data-epi="{{ r.cod_epi }}"
-    data-quantidade="{{ r.quantidade }}"
-    data-retirada="{{ r.data_retirada|date:'Y-m-d' }}"
-    data-devolucao="{{ r.data_devolucao|date:'Y-m-d' }}"
-    data-status="{{ r.status }}"
-    style="cursor:pointer">
+            <tr class="linha-reserva"
+                style="cursor:pointer"
+                data-id="{{ r.id_reserva }}"
+                data-colaborador="{{ r.cpf }}"
+                data-epi="{{ r.cod_epi }}"
+                data-quantidade="{{ r.quantidade }}"
+                data-retirada="{{ r.data_retirada|date:'Y-m-d' }}"
+                data-devolucao="{{ r.data_devolucao|date:'Y-m-d' }}"
+                data-status="{{ r.status }}">
 
-                    <td>{{ r.id_reserva }}</td>
-                    <td>{{ r.cpf }}</td>
-                    <td>{{ r.cod_epi }}</td>
-                    <td>{{ r.quantidade }}</td>
-                    <td>{{ r.data_retirada }}</td>
-                    <td>{{ r.data_devolucao }}</td>
-                    <td>{{ r.status }}</td>
-                </tr>
+                <td>{{ r.id_reserva }}</td>
+
+                <!-- Nome do colaborador -->
+                <td>
+                    {% for c in colaboradores %}
+                        {% if c.cpf == r.cpf %}
+                            {{ c.nome_colaborador }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+
+                <!-- Nome do EPI -->
+                <td>
+                    {% for e in epis %}
+                        {% if e.id_epis == r.cod_epi %}
+                            {{ e.nome_epi }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+
+                <td>{{ r.quantidade }}</td>
+                <td>{{ r.data_retirada|date:"d/m/Y" }}</td>
+                <td>{{ r.data_devolucao|date:"d/m/Y" }}</td>
+                <td>{{ r.status }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 
 </div>
 
+<!-- SCRIPT DE EDIÇÃO -->
 <script>
 document.querySelectorAll(".linha-reserva").forEach(row => {
     row.addEventListener("click", () => {
 
-        // Campos simples
         document.getElementById("id_reserva").value = row.dataset.id;
         document.getElementById("quantidade").value = row.dataset.quantidade;
         document.getElementById("data_retirada").value = row.dataset.retirada;
         document.getElementById("data_devolucao").value = row.dataset.devolucao;
         document.getElementById("status").value = row.dataset.status;
 
-        // SELECT COLABORADOR
-        document.querySelector("#colaborador").value = row.dataset.colaborador;
+        document.getElementById("colaborador").value = row.dataset.colaborador;
+        document.getElementById("epi").value = row.dataset.epi;
 
-        // SELECT EPI
-        document.querySelector("#epi").value = row.dataset.epi;
+        document.getElementById("colaborador").setAttribute("disabled", true);
+        document.getElementById("epi").setAttribute("disabled", true);
     });
 });
-</script>
 
+function novaReserva() {
+
+    document.getElementById("id_reserva").value = "";
+    document.getElementById("quantidade").value = "";
+    document.getElementById("data_retirada").value = "";
+    document.getElementById("data_devolucao").value = "";
+    document.getElementById("status").value = "reservado";
+
+    document.getElementById("colaborador").value = "";
+    document.getElementById("epi").value = "";
+
+    document.getElementById("colaborador").removeAttribute("disabled");
+    document.getElementById("epi").removeAttribute("disabled");
+}
+</script>
 
 {% endblock content %}

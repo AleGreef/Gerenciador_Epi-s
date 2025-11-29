@@ -11,52 +11,133 @@
             + Cadastrar
         </a>
     </div>
-    <!-- Barra de pesquisa -->
+    
     <div class="card-body">
-        <div class="mb-3" style="max-width: 1000px;">
-            <form>
-                <div class="d-flex gap-20">
-                    <input type="text" class="form-control" placeholder="Pesquisar Emprestimo..." name="colaborador_id" value="{{ pesquisa }}">
+        <div class="mb-3" style="max-width: 1200px;">
+            <form method="GET" action="{% url 'colaboradores:listar_emprestimos' %}">
+                <div class="d-flex gap-2 mb-2 flex-wrap">
+                    <!-- Barra de pesquisa colaborador -->
+                    <div class="mb-3" style="max-width: 1000px;">
+                        <form>
+                            <div class="d-flex gap-20">
+                                <input type="text" class="form-control" placeholder="Pesquisar colaborador..." name="nome_colaborador" value="{{ pesquisa }}">
+                                <button type="submit" class="btn btn-primary">Pesquisar</button>
+                            </div>
+                            {% if pesquisa %}
+                                    <a href="{% url 'colaboradores:listar_colaborador' %}">Limpar Pesquisa</a>
+                            {% endif %}
+                        </form>
+                    </div>
+                    <!-- Barra de pesquisa -->
+                    <div class="mb-3" style="max-width: 1000px;">
+                        <form>
+                            <div class="d-flex gap-20">
+                                <input type="text" class="form-control" placeholder="Pesquisar equipamento..." name="nome_epi" value="{{ pesquisa }}">
+                                <button type="submit" class="btn btn-primary">Pesquisar</button>
+                            </div>
+                            {% if pesquisa %}
+                                    <a href="{% url 'colaboradores:listar_equipamentos' %}">Limpar Pesquisa</a>
+                            {% endif %}
+                        </form>
+                    </div>       
+                    <select name="status" class="form-select" style="max-width: 200px;" >
+                        <option value="">Todos os Status</option>
+                        <option value="Empréstimo" {% if filtros.status == 'Empréstimo' %}selected{% endif %}>Empréstimo</option>
+                        <option value="Devolvido" {% if filtros.status == 'Devolvido' %}selected{% endif %}>Devolvido</option>
+                        </select>
+                    
                     <button type="submit" class="btn btn-primary">Pesquisar</button>
                 </div>
-                {% if pesquisa %}
-                        <a href="{% url 'colaboradores:listar_emprestimos' %}">Limpar Pesquisa</a>
+                
+                {% if filtros %}
+                    <a href="{% url 'colaboradores:listar_emprestimos' %}">Limpar Pesquisa</a>
                 {% endif %}
             </form>
         </div>
         
-            {% if emprestimos %}
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle">
-                        <thead class="table-dark">
+        {% if emprestimos %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nome Colaborador</th>
+                            <th>Epi</th>
+                            <th>Data Emprestado</th>
+                            <th>Data Prevista Devolução</th>
+                            <th>Data da Devolução</th>
+                            <th>observacoes</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in emprestimos %}
                             <tr>
-                                <th>Status</th>
-                                <th>Cod. Colaborador</th>
-                                <th>Data Ret.</th>
-                                <th>Data Dev.</th>
-                                <th>Ações</th>
+                                <td>{{ c.colaborador.nome_colaborador }}</td>
+                                <td>{{ c.epis.nome_epi }}</td>
+                                
+                                <td>{{ c.data_emprestimo|date:"d/m/Y" }}</td>
+                                <td>{{ c.data_prevista|date:"d/m/Y" }}</td>
+                                
+                                <td>
+                                    {% if c.data_devolver %}
+                                        {{ c.data_devolver|date:"d/m/Y" }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if c.data_devolver %}
+                                        {{ c.observacoes}}
+                                    {% endif %}
+                                </td>
+                                <td>{{ c.status}}</td>
+                                
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'colaboradores:editar_emprestimo' c.id %}" 
+                                        class="btn btn-warning btn-sm">
+                                        Editar
+                                        </a>
+
+                                        <button class="btn btn-danger btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalRemover{{ c.id }}">
+                                            Remover
+                                        </button>
+
+                                        <div class="modal fade" id="modalRemover{{ c.id }}" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">Excluir Empréstimo</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Tem certeza que deseja remover o emprestimo de **{{ c.epis.nome_epi }}** para o colaborador **{{ c.colaborador.nome_colaborador }}**?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form method="POST" action="{% url 'colaboradores:remover_emprestimo' c.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Remover</button>
+                                                        </form>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                            Cancelar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for c in emprestimos %}
-                                <tr>
-                                    <td>{{ c.status}}</td>
-                                    <td>{{ c.colaborador_id }}</td>
-                                    <td>{{ c.data_emprestimo}}</td>
-                                    <td>{{ c.data_devolucao}}</td>
-                                    <td>
-                                        
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <p class="text-center text-muted">Nenhum emprestimo cadastrado.</p>
-            {% endif %}
-        
-    </div>    
-</div>    
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center text-muted">Nenhum empréstimo cadastrado ou encontrado com os filtros.</p>
+        {% endif %}
+    
+    </div>
+</div> 
 
 {% endblock content %}

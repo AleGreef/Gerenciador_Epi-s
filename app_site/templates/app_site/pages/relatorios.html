@@ -1,0 +1,165 @@
+{% extends "app_site/partials/base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="relatorios-container">
+    <h2>Relatório de Empréstimos</h2>
+    <div class="filtros">
+        <input type="text" id="filtroColaborador" placeholder="Nome do Colaborador">
+        <input type="text" id="filtroEquipamento" placeholder="Nome do Equipamento">
+        <select id="filtroStatus">
+            <option value="">Todos os Status</option>
+            <option value="Empréstimo">Empréstimo</option>
+            <option value="Devolvido">Devolvido</option>
+            </select>
+        <button onclick="aplicarFiltros()">Pesquisar</button>
+    </div>
+
+    <table id="tabelaEmprestimos">
+        <thead>
+            <tr>
+                <th>Colaborador</th>
+                <th>Equipamento</th>
+                <th>Status</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in emprestimos %}
+                <tr>
+                    <td>{{ c.colaborador.nome_colaborador }}</td>
+                    <td>{{ c.epis.nome_epi }}</td>
+                    <td>{{ c.status}}</td>
+                    
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'colaboradores:editar_emprestimo' c.id %}" 
+                            class="btn btn-warning btn-sm">
+                            Editar
+                            </a>
+
+                            <button class="btn btn-danger btn-sm" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalRemover{{ c.id }}">
+                                Remover
+                            </button>
+
+                            <div class="modal fade" id="modalRemover{{ c.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">Excluir Empréstimo</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Tem certeza que deseja remover o emprestimo de **{{ c.epis.nome_epi }}** para o colaborador **{{ c.colaborador.nome_colaborador }}**?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form method="POST" action="{% url 'colaboradores:remover_emprestimo' c.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Remover</button>
+                                            </form>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="modalEdicao" style="display: none;">
+        <h3>Atualizar Status do Empréstimo</h3>
+        <form id="formEdicao">
+            <label>Colaborador:</label>
+            <input type="text" id="editColaborador" disabled>
+            
+            <label>Equipamento:</label>
+            <input type="text" id="editEquipamento" disabled>
+            
+            <label for="editStatus">Novo Status:</label>
+            <select id="editStatus" required>
+                <option value="Empréstimo">Empréstimo</option>
+                <option value="Devolvido">Devolvido</option>
+                </select>
+            
+            <button type="button" onclick="salvarStatus()">Salvar</button>
+            <button type="button" onclick="fecharModal()">Cancelar</button>
+        </form>
+    </div>
+</div>
+<script>
+    function aplicarFiltros() {
+        const colaboradorFiltro = document.getElementById('filtroColaborador').value.toUpperCase();
+        const equipamentoFiltro = document.getElementById('filtroEquipamento').value.toUpperCase();
+        const statusFiltro = document.getElementById('filtroStatus').value.toUpperCase();
+        const tabela = document.getElementById('tabelaEmprestimos');
+        const linhas = tabela.getElementsByTagName('tr');
+
+        // Começa a partir da linha 1 para ignorar o cabeçalho
+        for (let i = 1; i < linhas.length; i++) {
+            const linha = linhas[i];
+            const celulas = linha.getElementsByTagName('td');
+            
+            // Colunas: 0=Colaborador, 1=Equipamento, 4=Status
+            const colaborador = celulas[0].innerText.toUpperCase();
+            const equipamento = celulas[1].innerText.toUpperCase();
+            const status = celulas[4].innerText.toUpperCase();
+
+            // Lógica de filtro AND: A linha só é exibida se *todos* os filtros baterem
+            // Se um campo de filtro estiver vazio, ele é considerado verdadeiro (não aplica restrição)
+            const matchColaborador = colaborador.indexOf(colaboradorFiltro) > -1;
+            const matchEquipamento = equipamento.indexOf(equipamentoFiltro) > -1;
+            const matchStatus = status.indexOf(statusFiltro) > -1 || statusFiltro === "";
+            
+            if (matchColaborador && matchEquipamento && matchStatus) {
+                linha.style.display = ''; // Exibe a linha
+            } else {
+                linha.style.display = 'none'; // Oculta a linha
+            }
+        }
+    }
+    let emprestimoAtual = null; // Variável para guardar o objeto de empréstimo sendo editado
+
+    function abrirModalEdicao(dadosEmprestimo) {
+        // Armazena os dados para uso na função salvarStatus
+        emprestimoAtual = dadosEmprestimo; 
+
+        // Preenche os campos do formulário (Campos de restrição com 'disabled' no HTML)
+        document.getElementById('editColaborador').value = dadosEmprestimo.colaborador;
+        document.getElementById('editEquipamento').value = dadosEmprestimo.equipamento;
+        document.getElementById('editDataEmprestimo').value = dadosEmprestimo.dataEmprestimo;
+        document.getElementById('editDataPrevista').value = dadosEmprestimo.dataPrevista;
+        
+        // Campo que PODE ser alterado
+        document.getElementById('editStatus').value = dadosEmprestimo.status; 
+        
+        // Exibe o modal
+        document.getElementById('modalEdicao').style.display = 'block';
+    }
+
+    function salvarStatus() {
+        const novoStatus = document.getElementById('editStatus').value;
+        
+        // Lógica para atualizar o status no seu "banco de dados" (ou array de dados no Front-End)
+        // Por exemplo: atualizar o objeto emprestimoAtual e re-renderizar a tabela.
+        
+        console.log(`Empréstimo de ${emprestimoAtual.colaborador} atualizado para Status: ${novoStatus}`);
+        
+        fecharModal();
+        // Você deve chamar uma função aqui para recarregar/atualizar os dados da tabela
+        // (Ex: recarregarDados())
+    }
+
+    function fecharModal() {
+        document.getElementById('modalEdicao').style.display = 'none';
+        emprestimoAtual = null;
+    }
+</script>
+{% endblock content %}

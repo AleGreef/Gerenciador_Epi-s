@@ -11,40 +11,163 @@
             <a href="{% url 'colaboradores:listar_emprestimos' %}" class="btn btn-light btn-sm">Ver Lista</a>
         </div>
 
+
         <div class="card-body">
-            <form method="POST" action="{% url 'colaboradores:realizar_emprestimo' %}">
+            <form method="POST" 
+                action="{% if modo_edicao %}
+                            {% url 'colaboradores:editar_emprestimo' emprestimo.id %}
+                        {% else %}
+                            {% url 'colaboradores:realizar_emprestimo' %}
+                        {% endif %}">
+                
                 {% csrf_token %}
                 
                 <!-- Nome do Colaborador -->
                 <div class="mb-3">
-                    <label for="nome_colaborador" class="form-label">Nome do Colaborador</label>
-                    <input type="text" id="nome_colaborador" name="nome_colaborador" class="form-control" required>
+                    <label class="form-label">Nome do Colaborador</label>
+                    <select id="nome_colaborador" name="nome_colaborador" class="form-control" required>
+
+                        {% if modo_edicao %}
+                            <option value="{{ colaborador_atual.id_col }}" selected>{{ colaborador_atual.nome_colaborador }}</option>
+                        {% endif %}
+
+                        {% for c in colaboradores %}
+                            <option value="{{ c.id_col }}" {% if modo_edicao and c.id_col == colaborador_atual.id_col %}selected{% endif %}>
+                                {{ c.nome_colaborador }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
                 </div>
 
                 <!-- Nome do Equipamento -->
                 <div class="mb-3">
-                    <label for="nome_equipamento" class="form-label">Nome do equipamento</label>
-                    <input type="text" id="nome_equipamento" name="nome_equipamento" class="form-control" required>
-                </div>  
+                    <label class="form-label">Nome do Equipamento</label>
+                    <select id="nome_epi" name="nome_epi" class="form-control" required>
+
+                        {% if modo_edicao %}
+                            <option value="{{ equipamento_atual.id_epi }}" selected>{{ equipamento_atual.id_epi }}</option>
+                        {% endif %}
+
+                        {% for e in epis %}
+                            <option value="{{ e.id_epi }}" {% if modo_edicao and e.id_epi == equipamento_atual.id_epi %}selected{% endif %}>
+                                {{ e.nome_epi }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
 
                 <!-- Data do emprestimo -->
                 <div class="mb-3">
                     <label for="data_emprestimo" class="form-label">Data do emprestimo</label>
-                    <input type="date" id="data_emprestimo" name="data_emprestimo" class="form-control" required>
+                    <input type="date" id="data_emprestimo" name="data_emprestimo" class="form-control" value="{{ emprestimo.data_emprestimo|date:'Y-m-d' }}" required>
                 </div>
 
-                <!-- Data de devolução -->
+                <!-- Data prevista para devolução -->
                 <div class="mb-3">
-                    <label for="data_devolver" class="form-label">Data de devolução</label>
-                    <input type="date" id="data_devolver" name="data_devolver" class="form-control" required>
+                    <label for="data_prevista" class="form-label">Data prevista para devolução</label>
+                    <input type="date" id="data_prevista" name="data_prevista" class="form-control" value="{{ emprestimo.data_prevista|date:'Y-m-d' }}" required>
+                </div>
+                
+                <!-- Status -->
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select id="status" name="status" class="form-control" required>
+                        <option value="">Selecione...</option>
+
+                        <option value="emprestado" {% if emprestimo.status == "emprestado" %}selected{% endif %}>Emprestado</option>
+                        <option value="fornecido" {% if emprestimo.status == "fornecido" %}selected{% endif %}>Fornecido</option>
+
+                        {% if modo_edicao %}
+                            <option value="devolvido" {% if emprestimo.status == "devolvido" %}selected{% endif %}>Devolvido</option>
+                            <option value="danificado" {% if emprestimo.status == "danificado" %}selected{% endif %}>Danificado</option>
+                            <option value="perdido" {% if emprestimo.status == "perdido" %}selected{% endif %}>Perdido</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div id="campos_devolucao" style="display:none;">
+    
+                    <div class="mb-3">
+                        <label>Data de Devolução</label>
+                        <input type="date" name="data_devolver" class="form-control" 
+                            value="{{ emprestimo.data_devolver|date:'Y-m-d' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Observações</label>
+                        <input type="text" name="observacoes" class="form-control"
+                            value="{{ emprestimo.observacoes }}">
+                    </div>
+
                 </div>
 
                 <!-- Botões -->
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">Cadastrar</button>
-                </div>
+                <button type="submit" class="btn btn-primary">
+                    {% if modo_edicao %}Atualizar Emprestimo{% else %}Cadastrar Emprestimo{% endif %}
+                </button>
             </form>
         </div>
     </div>
 </div>
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+    // Colaboradores
+    $('#nome_colaborador').select2({
+        placeholder: "Digite para buscar...",
+        minimumInputLength: 1,
+        ajax: {
+            url: "{% url 'colaboradores:buscar_colaboradores' %}",
+            dataType: 'json',
+            delay: 300,
+            data: params => ({ term: params.term }),
+            processResults: function(data) {
+                return { results: data };  // já é lista de {id, text}
+            }
+        }
+    });
+    {% if modo_edicao %}
+    $('#nome_colaborador').val("{{ colaborador_atual.id_col }}").trigger("change");
+    {% endif %}
+
+    // Equipamentos
+    $('#nome_epi').select2({
+        placeholder: "Digite para buscar...",
+        minimumInputLength: 1,
+        ajax: {
+            url: "{% url 'colaboradores:buscar_equipamentos' %}",
+            dataType: 'json',
+            delay: 300,
+            data: params => ({ term: params.term }),
+            processResults: function(data) {
+                // data precisa ser um array
+                return { results: data }; // se o backend retornar [{id, text}, ...]
+            }
+        }
+    });
+    {% if modo_edicao %}
+    var option = new Option("{{ equipamento_atual.nome_epi }}", "{{ equipamento_atual.id_epi }}", true, true);
+    $('#nome_epi').append(option).trigger('change');
+    {% endif %}
+
+    // Campos de devolução
+    function atualizarCamposDevolucao() {
+        const status = document.getElementById("status").value;
+        const campos = document.getElementById("campos_devolucao");
+        if (["devolvido", "danificado", "perdido"].includes(status)) {
+            campos.style.display = "block";
+        } else {
+            campos.style.display = "none";
+        }
+    }
+    document.getElementById("status").addEventListener("change", atualizarCamposDevolucao);
+    atualizarCamposDevolucao();
+});
+
+</script>
+
+{% endblock %}
 {% endblock content %}

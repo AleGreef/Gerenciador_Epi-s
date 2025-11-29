@@ -86,9 +86,11 @@ class Emprestimos(models.Model):
     colaborador = models.ForeignKey(Colaboradores, on_delete=models.CASCADE)
     epis = models.ForeignKey(Epis, on_delete=models.CASCADE)
     data_emprestimo = models.DateTimeField(blank=True, null=True)
-    data_devolucao = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=2, blank=True, null=True)
-    ddelete_flag  = models.CharField(max_length=1, blank=True, null=True)
+    data_prevista = models.DateTimeField(blank=True, null=True)
+    data_devolver = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(max_length=20, blank=True, null=True)
+    observacao = models.CharField(max_length=255, blank=True, null=True)
+    delete_flag  = models.CharField(max_length=1, blank=True, null=True)
 
     class Meta:
         db_table = 'Emprestimos'

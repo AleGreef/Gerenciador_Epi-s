@@ -1,13 +1,32 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from app_site.models import Colaboradores, Epis, Setor
+from app_site.models import Colaboradores, Epis, Setor, Emprestimos
 from app_login.models import CustomUser
 from django.db import transaction
 from django.contrib import messages
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.http import  HttpRequest
+from django.http import JsonResponse
+from django.db import IntegrityError
 
 User = CustomUser
+
+
+@login_required(login_url='accounts:login')
+def buscar_equipamentos(request):
+    term = request.GET.get('term', '')
+    epis = Epis.objects.filter(nome_epi__icontains=term)
+    # Retorna como array de objetos
+    data = [{"id": e.id_epis, "text": e.nome_epi} for e in epis]
+    return JsonResponse(data, safe=False)  # safe=False porque é uma lista
+
+@login_required(login_url='accounts:login')
+def buscar_colaboradores(request):
+    term = request.GET.get('term', '')
+    colaboradores = Colaboradores.objects.filter(nome_colaborador__icontains=term)
+
+    data = [{"id_col": c.id_col, "text": c.nome_colaborador} for c in colaboradores]
+    return JsonResponse(data, safe=False)  # safe=False porque é uma lista
 
 @login_required(login_url='accounts:login')
 def cadastrar_equipamento(request):
@@ -38,7 +57,17 @@ def cadastrar_equipamento(request):
 
 @login_required(login_url='accounts:login')
 def listar_emprestimos(request):
-    return render(request, 'app_site/pages/listar_emprestimos.html')
+    pesquisa = request.GET.get("colaborador_id", "")
+
+    emprestimos = Emprestimos.objects.all().select_related("colaborador")
+
+    if pesquisa:
+        emprestimos = emprestimos.filter(colaborador__nome_colaborador__icontains=pesquisa)
+
+    return render(request, "app_site/pages/listar_emprestimos.html", {
+        "emprestimos": emprestimos,
+        "pesquisa": pesquisa
+    })
 
 @login_required(login_url='accounts:login')
 def menu(request):
@@ -213,6 +242,17 @@ def remover_setor(request, id:int):
     return redirect('colaboradores:listar_setor')
 
 @login_required(login_url='accounts:login')
+def remover_emprestimo(request, pk):
+    emprestimo = get_object_or_404(Emprestimos, pk=pk)
+
+    if request.method == "POST":
+        emprestimo.delete()
+        messages.success(request, "Empréstimo excluído com sucesso!")
+        return redirect("colaboradores:listar_emprestimos")
+
+    return redirect("colaboradores:listar_emprestimos")
+
+@login_required(login_url='accounts:login')
 def editar_colaborador(request: HttpRequest, id: int):
     colaborador = get_object_or_404(Colaboradores, id_col=id)
 
@@ -294,6 +334,57 @@ def editar_setor(request: HttpRequest, id: int):
         'modo_edicao': True,
     })
 
+# Seu código na view.py (dentro de editar_emprestimo)
+@login_required(login_url='accounts:login')
+def editar_emprestimo(request, id):
+    try:
+        emprestimo = Emprestimos.objects.get(id=id)
+    except Emprestimos.DoesNotExist:
+        messages.error(request, "Empréstimo não encontrado.")
+        return redirect("colaboradores:listar_emprestimos")
+
+    if request.method == "POST":
+        # ... (Coleta de outros dados)
+        
+        # 🚨 PONTO CRÍTICO: Verifique como você está obtendo o ID do EPI.
+        epis_id = request.POST.get("nome_epi") # Ou o nome real do campo no seu formulário
+
+        # Se o formulário não tem esse campo, ou se ele está desabilitado e não envia valor:
+        if not epis_id:
+            # Opção A: Manter o EPI existente (Se o formulário não deveria permitir alteração)
+            # Você precisa garantir que o objeto EPI original seja mantido se o campo for desabilitado
+            
+            # Não faça nada aqui para não limpar o emprestimo.epis original
+            pass 
+        else:
+            # Opção B: Tentar buscar o novo EPI (Se a alteração for permitida)
+            try:
+                equipamento = Epis.objects.get(id_epis=epis_id)
+                emprestimo.epis = equipamento
+            except Epis.DoesNotExist:
+                messages.error(request, "Equipamento não encontrado.")
+                return redirect("colaboradores:editar_emprestimo", id=id)
+
+        # 🚨 IMPORTANTE: Se o campo 'epis' está desabilitado no HTML, ele NÃO é enviado no POST.
+        # Portanto, você não deve redefinir emprestimo.epis no bloco POST
+        # a menos que o campo `epis_id` venha corretamente.
+
+        # ... (Outras atualizações de campos, como status, data_devolver, etc.)
+
+        # Se o campo de EPI não é enviado, e você não está atualizando ele, o valor original de
+        # `emprestimo.epis` DEVE ser mantido no objeto, antes de chamar o save().
+        
+        try:
+            emprestimo.save() # Se o objeto emprestimo ainda tem o valor original, deve funcionar.
+            messages.success(request, "Empréstimo atualizado com sucesso!")
+            return redirect("colaboradores:listar_emprestimos")
+        except IntegrityError as e:
+            messages.error(request, f"Erro de integridade ao salvar: {e}")
+            return redirect("colaboradores:editar_emprestimo", id=id)
+
+    # ... (GET request)
+    return render(request, "app_site/pages/editar_emprestimo.html", {'emprestimo': emprestimo})
+
 @login_required(login_url='accounts:login')
 def perfil(request):
     # Busca o colaborador relacionado ao usuário logado
@@ -318,6 +409,7 @@ def perfil(request):
         "colaborador": colaborador
     })
 
+@login_required(login_url='accounts:login')
 def cadastrar_setor(request):
     if request.method == 'POST':
         nome_setor = request.POST.get('nome_setor')
@@ -338,7 +430,67 @@ def cadastrar_setor(request):
 
 @login_required(login_url='accounts:login')
 def realizar_emprestimo(request):
-    return render(request, 'app_site/pages/realizar_emprestimo.html')
+    if request.method == "POST":
+        # 1. Coleta e Limpeza dos dados
+        
+        # Campos obrigatórios (presume-se)
+        colaborador_id = request.POST.get("nome_colaborador")
+        epis_id = request.POST.get("nome_epi")
+        data_emprestimo = request.POST.get("data_emprestimo") # Deve ser YYYY-MM-DD
+        data_prevista = request.POST.get("data_prevista")     # Deve ser YYYY-MM-DD
+        status = request.POST.get("status")
 
+        # Campos opcionais que precisam ser tratados para evitar string vazia ('')
+        data_devolver = request.POST.get("data_devolver")
+        observacoes = request.POST.get("observacoes")
 
+        # 2. Tratamento do campo 'data_devolver' (O MAIS IMPORTANTE)
+        # Se o campo vier vazio (''), o Django tenta converter em DateTime e falha.
+        # Devemos forçar que seja None se estiver vazio, para que o campo seja NULL no DB.
+        if data_devolver == '':
+            data_devolver = None
+            
+        # O mesmo para observacoes
+        if observacoes == '':
+            observacoes = None
 
+        try:
+            # 3. Busca os objetos corretos
+            colaborador = Colaboradores.objects.get(id_col=colaborador_id)
+            equipamento = Epis.objects.get(id_epis=epis_id)
+
+            # 4. Cria o registro
+            Emprestimos.objects.create(
+                colaborador=colaborador,
+                epis=equipamento,
+                data_emprestimo=data_emprestimo,
+                data_prevista=data_prevista,
+                # O valor agora é 'None' se estiver vazio, o que resolve o erro
+                data_devolver=data_devolver, 
+                status=status,
+                observacao=observacoes, # Garantindo que observacoes seja passado
+                delete_flag='N',
+            )
+
+            messages.success(request, "Empréstimo registrado com sucesso!")
+            return redirect("colaboradores:listar_emprestimos")
+        
+        except Colaboradores.DoesNotExist:
+             messages.error(request, "Colaborador não encontrado.")
+             # Adicione um retorno para evitar falha
+             return redirect("colaboradores:realizar_emprestimo") 
+        except Epis.DoesNotExist:
+             messages.error(request, "Equipamento não encontrado.")
+             # Adicione um retorno para evitar falha
+             return redirect("colaboradores:realizar_emprestimo")
+        except Exception as e:
+            # Captura outros erros de criação, como formato de data inválido para campos obrigatórios
+            messages.error(request, f"Erro ao registrar empréstimo: {e}")
+            return redirect("colaboradores:realizar_emprestimo")
+
+    # 5. Renderiza o formulário (GET request)
+    return render(request, "app_site/pages/realizar_emprestimo.html")
+
+@login_required(login_url='accounts:login')
+def relatorios(request):
+    return render(request, 'app_site/pages/relatorios.html')

@@ -7,7 +7,13 @@
 <div class="container-fluid" >
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Realizar Emprestimos</h4>
+            <h4 class="mb-0">
+                {% if modo_edicao %}
+                    Editar Empréstimo (ID: {{ emprestimo.id }})
+                {% else %}
+                    Realizar Empréstimo
+                {% endif %}
+            </h4>
             <a href="{% url 'colaboradores:listar_emprestimos' %}" class="btn btn-light btn-sm">Ver Lista</a>
         </div>
 
@@ -22,56 +28,61 @@
                 
                 {% csrf_token %}
                 
-                <!-- Nome do Colaborador -->
                 <div class="mb-3">
                     <label class="form-label">Nome do Colaborador</label>
-                    <select id="nome_colaborador" name="nome_colaborador" class="form-control" required>
+                    
+                    <select id="nome_colaborador" name="nome_colaborador" class="form-control" 
+                            {% if not modo_edicao %}required{% endif %} 
+                            {% if modo_edicao %}disabled{% endif %}> 
 
-                        {% if modo_edicao %}
-                            <option value="{{ colaborador_atual.id_col }}" selected>{{ colaborador_atual.nome_colaborador }}</option>
-                        {% endif %}
-
-                        {% for c in colaboradores %}
-                            <option value="{{ c.id_col }}" {% if modo_edicao and c.id_col == colaborador_atual.id_col %}selected{% endif %}>
-                                {{ c.nome_colaborador }}
-                            </option>
-                        {% endfor %}
-
-                    </select>
+                        <option value="">
+                            {% if modo_edicao %}
+                                {{ colaborador_atual.nome_colaborador }} (ID: {{ colaborador_atual.id_col }})
+                            {% else %}
+                                Selecione ou busque o colaborador
+                            {% endif %}
+                        </option>
+                        </select>
+                    
+                    {% if modo_edicao %}
+                        <input type="hidden" name="colaborador_id" value="{{ colaborador_atual.id_col }}">
+                    {% endif %}
                 </div>
 
-                <!-- Nome do Equipamento -->
                 <div class="mb-3">
                     <label class="form-label">Nome do Equipamento</label>
-                    <select id="nome_epi" name="nome_epi" class="form-control" required>
+                    
+                    <select id="nome_epi" name="nome_epi" class="form-control" 
+                            {% if not modo_edicao %}required{% endif %} 
+                            {% if modo_edicao %}disabled{% endif %}>
+                        
+                        <option value="">
+                            {% if modo_edicao %}
+                                {{ equipamento_atual.nome_epi }} (ID: {{ equipamento_atual.id_epi }})
+                            {% else %}
+                                Selecione ou busque o equipamento
+                            {% endif %}
+                        </option>
+                        </select>
 
-                        {% if modo_edicao %}
-                            <option value="{{ equipamento_atual.id_epi }}" selected>{{ equipamento_atual.id_epi }}</option>
-                        {% endif %}
-
-                        {% for e in epis %}
-                            <option value="{{ e.id_epi }}" {% if modo_edicao and e.id_epi == equipamento_atual.id_epi %}selected{% endif %}>
-                                {{ e.nome_epi }}
-                            </option>
-                        {% endfor %}
-
-                    </select>
+                    {% if modo_edicao %}
+                        <input type="hidden" name="epi_id" value="{{ equipamento_atual.id_epi }}">
+                    {% endif %}
                 </div>
 
 
-                <!-- Data do emprestimo -->
                 <div class="mb-3">
-                    <label for="data_emprestimo" class="form-label">Data do emprestimo</label>
-                    <input type="date" id="data_emprestimo" name="data_emprestimo" class="form-control" value="{{ emprestimo.data_emprestimo|date:'Y-m-d' }}" required>
-                </div>
+                    <label for="data_emprestimo" class="form-label">Data do empréstimo</label>
+                    <input type="date" id="data_emprestimo" name="data_emprestimo" class="form-control" 
+                           value="{{ emprestimo.data_emprestimo|date:'Y-m-d' }}" 
+                           {% if modo_edicao %}readonly{% else %}required{% endif %}> </div>
 
-                <!-- Data prevista para devolução -->
                 <div class="mb-3">
                     <label for="data_prevista" class="form-label">Data prevista para devolução</label>
-                    <input type="date" id="data_prevista" name="data_prevista" class="form-control" value="{{ emprestimo.data_prevista|date:'Y-m-d' }}" required>
-                </div>
+                    <input type="date" id="data_prevista" name="data_prevista" class="form-control" 
+                           value="{{ emprestimo.data_prevista|date:'Y-m-d' }}" 
+                           {% if modo_edicao %}readonly{% else %}required{% endif %}> </div>
                 
-                <!-- Status -->
                 <div class="mb-3">
                     <label class="form-label">Status</label>
                     <select id="status" name="status" class="form-control" required>
@@ -99,14 +110,12 @@
                     <div class="mb-3">
                         <label>Observações</label>
                         <input type="text" name="observacoes" class="form-control"
-                            value="{{ emprestimo.observacoes }}">
-                    </div>
+                            value="{{ emprestimo.observacoes|default_if_none:'' }}"> </div>
 
                 </div>
 
-                <!-- Botões -->
                 <button type="submit" class="btn btn-primary">
-                    {% if modo_edicao %}Atualizar Emprestimo{% else %}Cadastrar Emprestimo{% endif %}
+                    {% if modo_edicao %}Atualizar Empréstimo{% else %}Cadastrar Empréstimo{% endif %}
                 </button>
             </form>
         </div>
@@ -115,45 +124,60 @@
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-    // Colaboradores
-    $('#nome_colaborador').select2({
-        placeholder: "Digite para buscar...",
-        minimumInputLength: 1,
-        ajax: {
-            url: "{% url 'colaboradores:buscar_colaboradores' %}",
-            dataType: 'json',
-            delay: 300,
-            data: params => ({ term: params.term }),
-            processResults: function(data) {
-                return { results: data };  // já é lista de {id, text}
+    
+    // Configuração Colaboradores (Somente se NÃO for modo de edição)
+    {% if not modo_edicao %}
+        $('#nome_colaborador').select2({
+            placeholder: "Digite para buscar...",
+            minimumInputLength: 1,
+            ajax: {
+                url: "{% url 'colaboradores:buscar_colaboradores' %}",
+                dataType: 'json',
+                delay: 300,
+                data: params => ({ term: params.term }),
+                processResults: function(data) {
+                    return { results: data };
+                }
             }
-        }
-    });
-    {% if modo_edicao %}
-    $('#nome_colaborador').val("{{ colaborador_atual.id_col }}").trigger("change");
+        });
+    {% else %}
+        // Se for edição, inicializa o Select2 sem AJAX, apenas com a opção atual
+        $('#nome_colaborador').select2({
+            placeholder: "{{ colaborador_atual.nome_colaborador }}",
+            minimumResultsForSearch: Infinity, // Desabilita a busca se for somente leitura
+            // Se o campo está 'disabled', o Select2 já deve funcionar como somente leitura
+        });
     {% endif %}
 
-    // Equipamentos
-    $('#nome_epi').select2({
-        placeholder: "Digite para buscar...",
-        minimumInputLength: 1,
-        ajax: {
-            url: "{% url 'colaboradores:buscar_equipamentos' %}",
-            dataType: 'json',
-            delay: 300,
-            data: params => ({ term: params.term }),
-            processResults: function(data) {
-                // data precisa ser um array
-                return { results: data }; // se o backend retornar [{id, text}, ...]
+
+    // Configuração Equipamentos (Somente se NÃO for modo de edição)
+    {% if not modo_edicao %}
+        $('#nome_epi').select2({
+            placeholder: "Digite para buscar...",
+            minimumInputLength: 1,
+            ajax: {
+                url: "{% url 'colaboradores:buscar_equipamentos' %}",
+                dataType: 'json',
+                delay: 300,
+                data: params => ({ term: params.term }),
+                processResults: function(data) {
+                    return { results: data };
+                }
             }
-        }
-    });
-    {% if modo_edicao %}
-    var option = new Option("{{ equipamento_atual.nome_epi }}", "{{ equipamento_atual.id_epi }}", true, true);
-    $('#nome_epi').append(option).trigger('change');
+        });
+    {% else %}
+        // Se for edição, inicializa o Select2 sem AJAX, apenas com a opção atual
+        // Este é um hack comum para Select2 em modo de edição/disabled:
+        var option = new Option("{{ equipamento_atual.nome_epi }} (Atual)", "{{ equipamento_atual.id_epi }}", true, true);
+        $('#nome_epi').append(option).trigger('change');
+        $('#nome_epi').select2({
+            minimumResultsForSearch: Infinity,
+            placeholder: "{{ equipamento_atual.nome_epi }}",
+        });
     {% endif %}
 
-    // Campos de devolução
+
+    // Campos de devolução (Lógica JavaScript OK)
     function atualizarCamposDevolucao() {
         const status = document.getElementById("status").value;
         const campos = document.getElementById("campos_devolucao");

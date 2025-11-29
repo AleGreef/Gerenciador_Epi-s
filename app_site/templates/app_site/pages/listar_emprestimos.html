@@ -16,31 +16,13 @@
         <div class="mb-3" style="max-width: 1200px;">
             <form method="GET" action="{% url 'colaboradores:listar_emprestimos' %}">
                 <div class="d-flex gap-2 mb-2 flex-wrap">
-                    <!-- Barra de pesquisa colaborador -->
-                    <div class="mb-3" style="max-width: 1000px;">
-                        <form>
-                            <div class="d-flex gap-20">
-                                <input type="text" class="form-control" placeholder="Pesquisar colaborador..." name="nome_colaborador" value="{{ pesquisa }}">
-                                <button type="submit" class="btn btn-primary">Pesquisar</button>
-                            </div>
-                            {% if pesquisa %}
-                                    <a href="{% url 'colaboradores:listar_colaborador' %}">Limpar Pesquisa</a>
-                            {% endif %}
-                        </form>
-                    </div>
-                    <!-- Barra de pesquisa -->
-                    <div class="mb-3" style="max-width: 1000px;">
-                        <form>
-                            <div class="d-flex gap-20">
-                                <input type="text" class="form-control" placeholder="Pesquisar equipamento..." name="nome_epi" value="{{ pesquisa }}">
-                                <button type="submit" class="btn btn-primary">Pesquisar</button>
-                            </div>
-                            {% if pesquisa %}
-                                    <a href="{% url 'colaboradores:listar_equipamentos' %}">Limpar Pesquisa</a>
-                            {% endif %}
-                        </form>
-                    </div>       
-                    <select name="status" class="form-select" style="max-width: 200px;" >
+                    <input type="text" class="form-control" placeholder="Nome Colaborador..." name="colaborador_nome" 
+                           value="{{ filtros.colaborador_nome|default:'' }}" style="flex: 1;">
+                    
+                    <input type="text" class="form-control" placeholder="Nome Equipamento..." name="equipamento_nome" 
+                           value="{{ filtros.equipamento_nome|default:'' }}" style="flex: 1;">
+                           
+                    <select name="status" class="form-select" style="max-width: 200px;">
                         <option value="">Todos os Status</option>
                         <option value="Empréstimo" {% if filtros.status == 'Empréstimo' %}selected{% endif %}>Empréstimo</option>
                         <option value="Devolvido" {% if filtros.status == 'Devolvido' %}selected{% endif %}>Devolvido</option>

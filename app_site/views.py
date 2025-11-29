@@ -9,6 +9,7 @@ from django.http import  HttpRequest
 from django.http import JsonResponse
 from django.db import IntegrityError
 
+
 User = CustomUser
 
 
@@ -23,10 +24,13 @@ def buscar_equipamentos(request):
 @login_required(login_url='accounts:login')
 def buscar_colaboradores(request):
     term = request.GET.get('term', '')
+    # O filtro icontains está correto para a busca
     colaboradores = Colaboradores.objects.filter(nome_colaborador__icontains=term)
 
-    data = [{"id_col": c.id_col, "text": c.nome_colaborador} for c in colaboradores]
-    return JsonResponse(data, safe=False)  # safe=False porque é uma lista
+    # 🚨 Mude 'id_col' para 'id'
+    data = [{"id": c.id_col, "text": c.nome_colaborador} for c in colaboradores]
+    
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url='accounts:login')
 def cadastrar_equipamento(request):
@@ -55,20 +59,49 @@ def cadastrar_equipamento(request):
           
     return render(request, 'app_site/pages/cadastrar_equipamento.html')
 
-@login_required(login_url='accounts:login')
 def listar_emprestimos(request):
-    pesquisa = request.GET.get("colaborador_id", "")
+    # Inicializa o QuerySet com todos os empréstimos ativos (delete_flag='N')
+    emprestimos = Emprestimos.objects.filter(delete_flag='N')
+    
+    # Dicionário para armazenar os filtros e enviar de volta ao template
+    filtros = {}
 
-    emprestimos = Emprestimos.objects.all().select_related("colaborador")
+    # --- 1. FILTRO POR NOME DO COLABORADOR ---
+    colaborador_nome = request.GET.get('colaborador_nome')
+    if colaborador_nome:
+        # Usa __icontains para buscar parte do nome, ignorando case
+        emprestimos = emprestimos.filter(
+            colaborador__nome_colaborador__icontains=colaborador_nome
+        )
+        filtros['colaborador_nome'] = colaborador_nome
 
-    if pesquisa:
-        emprestimos = emprestimos.filter(colaborador__nome_colaborador__icontains=pesquisa)
+    # --- 2. FILTRO POR NOME DO EQUIPAMENTO (EPI) ---
+    equipamento_nome = request.GET.get('equipamento_nome')
+    if equipamento_nome:
+        # Usa __icontains para buscar parte do nome, ignorando case
+        emprestimos = emprestimos.filter(
+            epis__nome_epi__icontains=equipamento_nome
+        )
+        filtros['equipamento_nome'] = equipamento_nome
 
-    return render(request, "app_site/pages/listar_emprestimos.html", {
-        "emprestimos": emprestimos,
-        "pesquisa": pesquisa
-    })
+    # --- 3. FILTRO POR STATUS ---
+    status = request.GET.get('status')
+    if status:
+        # Usa __iexact (igualdade exata, ignorando case) para o status
+        emprestimos = emprestimos.filter(
+            status__iexact=status
+        )
+        filtros['status'] = status
+        
+    # Os filtros acima são combinados automaticamente por Django com o operador AND.
+    # Exemplo: (colaborador__icontains) AND (epis__icontains) AND (status__iexact)
 
+    context = {
+        'emprestimos': emprestimos,
+        'filtros': filtros # Envia os filtros de volta para preencher o formulário no template
+    }
+    
+    return render(request, "app_site/pages/listar_emprestimos.html", context)
 @login_required(login_url='accounts:login')
 def menu(request):
     return render(request, 'app_site/pages/menu.html')  # 'menu.html' é o template da tela do menu
@@ -334,56 +367,60 @@ def editar_setor(request: HttpRequest, id: int):
         'modo_edicao': True,
     })
 
-# Seu código na view.py (dentro de editar_emprestimo)
 @login_required(login_url='accounts:login')
 def editar_emprestimo(request, id):
-    try:
-        emprestimo = Emprestimos.objects.get(id=id)
-    except Emprestimos.DoesNotExist:
-        messages.error(request, "Empréstimo não encontrado.")
-        return redirect("colaboradores:listar_emprestimos")
+    emprestimo = get_object_or_404(Emprestimos, id=id)
 
     if request.method == "POST":
-        # ... (Coleta de outros dados)
-        
-        # 🚨 PONTO CRÍTICO: Verifique como você está obtendo o ID do EPI.
-        epis_id = request.POST.get("nome_epi") # Ou o nome real do campo no seu formulário
+        # 1. Coletar e tratar campos editáveis
+        status_post = request.POST.get("status")
+        data_devolver_post = request.POST.get("data_devolver")
+        observacoes_post = request.POST.get("observacoes")
 
-        # Se o formulário não tem esse campo, ou se ele está desabilitado e não envia valor:
-        if not epis_id:
-            # Opção A: Manter o EPI existente (Se o formulário não deveria permitir alteração)
-            # Você precisa garantir que o objeto EPI original seja mantido se o campo for desabilitado
-            
-            # Não faça nada aqui para não limpar o emprestimo.epis original
-            pass 
-        else:
-            # Opção B: Tentar buscar o novo EPI (Se a alteração for permitida)
+        # --- A. Tratamento da Data de Devolução ---
+        data_devolver_obj = None
+        if data_devolver_post and data_devolver_post != '':
             try:
-                equipamento = Epis.objects.get(id_epis=epis_id)
-                emprestimo.epis = equipamento
-            except Epis.DoesNotExist:
-                messages.error(request, "Equipamento não encontrado.")
+                # Converte para objeto date
+                data_devolver_obj = datetime.strptime(data_devolver_post, "%Y-%m-%d").date()
+            except ValueError:
+                messages.error(request, "Formato de Data de Devolução inválido. Use YYYY-MM-DD.")
+                # 🚨 CORREÇÃO: Redireciona para a mesma página de edição (com o ID)
                 return redirect("colaboradores:editar_emprestimo", id=id)
 
-        # 🚨 IMPORTANTE: Se o campo 'epis' está desabilitado no HTML, ele NÃO é enviado no POST.
-        # Portanto, você não deve redefinir emprestimo.epis no bloco POST
-        # a menos que o campo `epis_id` venha corretamente.
+        # --- B. Tratamento de Observações ---
+        if observacoes_post == '':
+            observacoes_post = None
 
-        # ... (Outras atualizações de campos, como status, data_devolver, etc.)
-
-        # Se o campo de EPI não é enviado, e você não está atualizando ele, o valor original de
-        # `emprestimo.epis` DEVE ser mantido no objeto, antes de chamar o save().
+        # --- C. ATUALIZAÇÃO DO OBJETO ---
+        emprestimo.status = status_post
+        emprestimo.data_devolver = data_devolver_obj
+        emprestimo.observacao = observacoes_post 
         
         try:
-            emprestimo.save() # Se o objeto emprestimo ainda tem o valor original, deve funcionar.
+            emprestimo.save() 
             messages.success(request, "Empréstimo atualizado com sucesso!")
+            # Redireciona para a lista (Sucesso)
             return redirect("colaboradores:listar_emprestimos")
+        
         except IntegrityError as e:
-            messages.error(request, f"Erro de integridade ao salvar: {e}")
+            messages.error(request, f"Erro de integridade ao salvar: {e}. Verifique se todos os campos obrigatórios foram preenchidos corretamente.")
+            # 🚨 CORREÇÃO: Redireciona para a mesma página de edição (com o ID)
             return redirect("colaboradores:editar_emprestimo", id=id)
-
-    # ... (GET request)
-    return render(request, "app_site/pages/editar_emprestimo.html", {'emprestimo': emprestimo})
+        except Exception as e:
+            messages.error(request, f"Ocorreu um erro inesperado: {e}")
+            # 🚨 CORREÇÃO: Redireciona para a mesma página de edição (com o ID)
+            return redirect("colaboradores:editar_emprestimo", id=id)
+        
+    # GET request
+    context = {
+        'emprestimo': emprestimo,
+        'colaborador_atual': emprestimo.colaborador, 
+        'equipamento_atual': emprestimo.epis,        
+        'modo_edicao': True                         
+    }
+    # O caminho do template está correto: "app_site/pages/realizar_emprestimo.html"
+    return render(request, "app_site/pages/realizar_emprestimo.html", context)
 
 @login_required(login_url='accounts:login')
 def perfil(request):

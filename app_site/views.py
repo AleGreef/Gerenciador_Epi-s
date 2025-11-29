@@ -191,15 +191,35 @@ def realizar_reserva(request):
         # SALVAR / ATUALIZAR
         colaborador_id = request.POST.get('colaborador')
         epi_id = request.POST.get('epi')
+
+        # VALIDAÇÕES IMPORTANTES
+        if not colaborador_id:
+            messages.error(request, "Selecione um colaborador antes de salvar.")
+            return redirect('realizar_reserva')
+
+        if not epi_id:
+            messages.error(request, "Selecione um EPI antes de salvar.")
+            return redirect('realizar_reserva')
+
         quantidade = int(request.POST.get('quantidade'))
         data_retirada = request.POST.get('data_retirada')
         data_devolucao = request.POST.get('data_devolucao')
         status = request.POST.get('status')
 
-        colaborador = Colaboradores.objects.get(id_col=colaborador_id)
-        epi = Epis.objects.get(id_epis=epi_id)
+        # Buscar objetos
+        try:
+            colaborador = Colaboradores.objects.get(id_col=colaborador_id)
+        except Colaboradores.DoesNotExist:
+            messages.error(request, "Colaborador não encontrado!")
+            return redirect('realizar_reserva')
 
-        # Novo registro
+        try:
+            epi = Epis.objects.get(id_epis=epi_id)
+        except Epis.DoesNotExist:
+            messages.error(request, "EPI não encontrado!")
+            return redirect('realizar_reserva')
+
+        # NOVA RESERVA
         if not id_reserva:
             Reservas.objects.create(
                 cpf=colaborador.cpf,
@@ -210,8 +230,9 @@ def realizar_reserva(request):
                 status=status
             )
             messages.success(request, "Reserva cadastrada com sucesso!")
+
+        # ATUALIZAR RESERVA
         else:
-            # Atualizar registro existente
             Reservas.objects.filter(id_reserva=id_reserva).update(
                 cpf=colaborador.cpf,
                 cod_epi=epi.id_epis,

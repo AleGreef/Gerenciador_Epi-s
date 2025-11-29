@@ -1,0 +1,663 @@
+{% extends 'app_site/partials/base.html' %}
+{% load static %}
+
+{% block title %}Relatório de EPIs{% endblock %}
+
+{% block content %}
+<section class="home-section">
+    <div class="container-fluid px-4 py-4">
+        
+        <!-- Header com Gradiente -->
+        <div class="page-header mb-4">
+            <div class="d-flex align-items-center">
+                <div class="icon-wrapper">
+                    <i class='bx bx-file-find'></i>
+                </div>
+                <div class="ms-3">
+                    <h2 class="mb-0">Relatório de Reservas e Empréstimos</h2>
+                    <p class="text-muted mb-0">Gestão completa de EPIs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de Resumo -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card card-blue">
+                    <div class="stats-icon">
+                        <i class='bx bx-clipboard'></i>
+                    </div>
+                    <div class="stats-content">
+                        <h3>{{ total_reservas }}</h3>
+                        <p>Total de Reservas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card card-orange">
+                    <div class="stats-icon">
+                        <i class='bx bx-time-five'></i>
+                    </div>
+                    <div class="stats-content">
+                        <h3>{{ total_pendentes }}</h3>
+                        <p>Pendentes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card card-green">
+                    <div class="stats-icon">
+                        <i class='bx bx-check-circle'></i>
+                    </div>
+                    <div class="stats-content">
+                        <h3>{{ total_devolvidos }}</h3>
+                        <p>Devolvidos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Principal -->
+        <div class="main-card">
+            <!-- Filtros Modernos -->
+            <div class="filters-section">
+                <h5 class="section-title">
+                    <i class='bx bx-filter-alt'></i> Filtros de Pesquisa
+                </h5>
+                <form method="GET" action="{% url 'Relatorio' %}">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <input type="text" name="busca" class="form-control" 
+                                       id="busca" placeholder="Nome ou CPF" value="{{ busca }}">
+                                <label for="busca">
+                                    <i class='bx bx-search-alt'></i> Buscar Colaborador
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                <select name="status" class="form-control" id="status">
+                                    <option value="">Todos os Status</option>
+                                    <option value="pendente" {% if status == 'pendente' %}selected{% endif %}>Pendente</option>
+                                    <option value="reservado" {% if status == 'reservado' %}selected{% endif %}>Reservado</option>
+                                    <option value="emprestado" {% if status == 'emprestado' %}selected{% endif %}>Emprestado</option>
+                                    <option value="devolvido" {% if status == 'devolvido' %}selected{% endif %}>Devolvido</option>
+                                </select>
+                                <label for="status">
+                                    <i class='bx bx-filter'></i> Status
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="d-flex gap-2 h-100">
+                                <button type="submit" class="btn btn-primary flex-fill">
+                                    <i class='bx bx-search'></i> Buscar
+                                </button>
+                                <a href="{% url 'Relatorio' %}" class="btn btn-outline-secondary flex-fill">
+                                    <i class='bx bx-refresh'></i> Limpar
+                                </a>
+                                <button type="button" class="btn btn-success" onclick="window.print()">
+                                    <i class='bx bx-printer'></i> Imprimir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabela Moderna -->
+            <div class="table-section">
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class='bx bx-user'></i> Colaborador
+                                </th>
+                                <th>
+                                    <i class='bx bx-id-card'></i> CPF
+                                </th>
+                                <th>
+                                    <i class='bx bx-shield'></i> EPI
+                                </th>
+                                <th>Tipo</th>
+                                <th class="text-center">Qtd</th>
+                                <th>
+                                    <i class='bx bx-calendar'></i> Retirada
+                                </th>
+                                <th>
+                                    <i class='bx bx-calendar-check'></i> Devolução
+                                </th>
+                                <th>Status</th>
+                                <th class="text-center">Dias Pendente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if reservas %}
+                                {% for reserva in reservas %}
+                                <tr class="table-row-hover">
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">
+                                                {{ reserva.colaborador_nome|slice:":1"|upper }}
+                                            </div>
+                                            <span class="fw-semibold">{{ reserva.colaborador_nome }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-muted">{{ reserva.colaborador_cpf }}</td>
+                                    <td>
+                                        <strong>{{ reserva.epi_nome }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge">{{ reserva.epi_tipo }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="quantity-badge">{{ reserva.quantidade }}</span>
+                                    </td>
+                                    <td>{{ reserva.data_retirada|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if reserva.data_devolucao %}
+                                            {{ reserva.data_devolucao|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span class="text-muted fst-italic">
+                                                <i class='bx bx-minus'></i> Não devolvido
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if reserva.status == 'pendente' %}
+                                            <span class="status-badge status-warning">
+                                                <i class='bx bx-time'></i> Pendente
+                                            </span>
+                                        {% elif reserva.status == 'reservado' %}
+                                            <span class="status-badge status-info">
+                                                <i class='bx bx-bookmark'></i> Reservado
+                                            </span>
+                                        {% elif reserva.status == 'emprestado' %}
+                                            <span class="status-badge status-primary">
+                                                <i class='bx bx-package'></i> Emprestado
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-success">
+                                                <i class='bx bx-check'></i> {{ reserva.status|title }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if reserva.dias_pendente > 0 %}
+                                            <span class="days-badge {% if reserva.dias_pendente > 30 %}days-danger{% else %}days-warning{% endif %}">
+                                                {{ reserva.dias_pendente }} dias
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="9">
+                                        <div class="empty-state">
+                                            <i class='bx bx-folder-open'></i>
+                                            <h5>Nenhuma reserva encontrada</h5>
+                                            <p>Tente ajustar os filtros de pesquisa</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-light: #818cf8;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #3b82f6;
+        --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        --radius: 12px;
+    }
+
+    .home-section {
+        padding: 20px;
+        margin-left: 78px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        transition: all 0.3s ease;
+    }
+
+    .sidebar.close ~ .home-section {
+        margin-left: 78px;
+    }
+
+    /* Header Moderno */
+    .page-header {
+        background: white;
+        padding: 2rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: var(--bg-gradient);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 28px;
+        box-shadow: var(--shadow-md);
+    }
+
+    .page-header h2 {
+        color: #1e293b;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+
+    /* Cards de Estatísticas */
+    .stats-card {
+        background: white;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .card-blue::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .card-orange::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .card-green::before { background: linear-gradient(90deg, #10b981, #059669); }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+
+    .card-blue .stats-icon {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #3b82f6;
+    }
+
+    .card-orange .stats-icon {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #f59e0b;
+    }
+
+    .card-green .stats-icon {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #10b981;
+    }
+
+    .stats-content h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: #1e293b;
+    }
+
+    .stats-content p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    /* Card Principal */
+    .main-card {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    /* Seção de Filtros */
+    .filters-section {
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .section-title {
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    .form-floating label {
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+    }
+
+    .form-floating > .form-control {
+        padding-top: 1.625rem !important;
+        padding-bottom: 0.625rem !important;
+    }
+
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--bg-gradient);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #e2e8f0;
+        color: #64748b;
+        background: white;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Tabela Moderna */
+    .table-section {
+        padding: 0;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .modern-table thead {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        color: white;
+    }
+
+    .modern-table thead th {
+        padding: 1.25rem 1rem;
+        font-weight: 600;
+        text-align: left;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .modern-table thead th:first-child {
+        border-top-left-radius: 0;
+    }
+
+    .modern-table thead th:last-child {
+        border-top-right-radius: 0;
+    }
+
+    .modern-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+
+    .modern-table tbody tr:hover {
+        background: linear-gradient(90deg, #f8fafc, white);
+        transform: scale(1.01);
+    }
+
+    .modern-table tbody td {
+        padding: 1.25rem 1rem;
+        color: #334155;
+    }
+
+    /* User Cell */
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--bg-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    /* Badges */
+    .type-badge {
+        padding: 0.35rem 0.75rem;
+        background: #f1f5f9;
+        color: #475569;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .quantity-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        color: var(--primary-color);
+        border-radius: 8px;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+
+    .status-warning {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+    }
+
+    .status-info {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af;
+    }
+
+    .status-primary {
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        color: #4338ca;
+    }
+
+    .status-success {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+    }
+
+    .days-badge {
+        padding: 0.5rem 0.85rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    .days-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .days-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h5 {
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Print Styles */
+    @media print {
+        .btn, form, .sidebar, header, footer, .filters-section {
+            display: none !important;
+        }
+        
+        .home-section {
+            margin-left: 0 !important;
+            background: white !important;
+        }
+
+        .main-card, .stats-card, .page-header {
+            box-shadow: none !important;
+            page-break-inside: avoid;
+        }
+
+        .modern-table tbody tr:hover {
+            transform: none;
+        }
+    }
+
+    /* Fix para Select no Form Floating */
+    .form-floating select.form-control {
+        padding-top: 1.625rem !important;
+        padding-bottom: 0.625rem !important;
+        height: calc(3.5rem + 2px) !important;
+    }
+
+    .form-floating select.form-control:focus,
+    .form-floating select.form-control:not(:placeholder-shown) {
+        padding-top: 1.625rem !important;
+    }
+
+    .form-floating > select ~ label {
+        opacity: 0.65;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+    .form-floating > select:focus ~ label,
+    .form-floating > select:not(:placeholder-shown) ~ label {
+        opacity: 0.65;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+        .home-section {
+            margin-left: 0;
+        }
+
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

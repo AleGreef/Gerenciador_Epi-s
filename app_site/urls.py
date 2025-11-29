@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', views.menu, name='menu'), # página inicial do menu
+    path('', views.menu, name='menu'),
     path('gerenciar_colaboradores/', views.gerenciar_colaboradores, name='gerenciar_colaboradores'),
     path('cadastrar_colaborador/', views.cadastrar_colaborador, name='cadastrar_colaborador'),
     path('verificar_cpf/', views.verificar_cpf, name='verificar_cpf'),
@@ -15,10 +15,10 @@ urlpatterns = [
     path('perfil/', views.perfil, name='perfil'),
     path('excluir_colaborador/', views.excluir_colaborador, name='excluir_colaborador'),
     path('editar_colaborador/<str:cpf>/', views.editar_colaborador, name='editar_colaborador'),
-    path('excluir_colaborador/', views.excluir_colaborador, name='excluir_colaborador'),
-    path("realizar_reserva/", views.realizar_reserva, name="realizar_reserva"),
-
+    path('realizar_reserva/', views.realizar_reserva, name='realizar_reserva'),
+    path('relatorio/', views.Relatorio, name='Relatorio'),  # ← ANTES do if settings.DEBUG
 ]
 
+# Esta parte SEMPRE no final
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
